@@ -3,4 +3,4 @@
 
 ## Database
 ### ER Diagram
-![image](https://github.com/3nathan/DoC_ML_cw1/assets/101950460/73785c7a-e183-4664-9522-5b453b5366ce)
+![image](https://github.com/3nathan/DoC_ML_cw1/assets/101950460/17398605-23bf-4cce-b56c-ca582c3692d4)
