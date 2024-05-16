@@ -49,11 +49,11 @@ const TraitSchema = new Schema({
     activityType: {
       type: String,
       required: false,
-      enum: ['Meal', 'Exercise', 'Podcast', 'Chat', 'Comm']
     },
     traitType: {
       type: Schema.Types.ObjectId,
-      ref: 'Trait'  
+      ref: 'Trait',  
+      required: false,
     },
     timestamp: {
       type: Date, default: Date.now,
@@ -102,7 +102,7 @@ const CalendarSchema = new Schema({
         type: Schema.Types.ObjectId,
         required: true, 
         ref: 'User' },
-    recipientNumber: {
+    recipientPhoneNumber: {
         type: String,
         required: true
     },
