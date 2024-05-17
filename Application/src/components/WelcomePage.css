@@ -1,0 +1,19 @@
+.welcome-container {
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding: 20px;
+    width: 300px;
+    margin: 0 auto;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .welcome-container h2 {
+    color: #007bff;
+  }
+  
+  .welcome-container p {
+    color: #495057;
+  }
+  
