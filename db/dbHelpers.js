@@ -3,19 +3,28 @@ const models = [User, Trait, Chat, Comms, History, Podcast, Calendar, Exercise, 
 
 /* ------------------- ADD FUNCTIONS ------------------- */
 async function addHistory(userID, activityType) {
-    const newHistory = new History({
-        userID: userID,
-        historyTrait: activityType,
-        dateSuggested: Date.now(),
-    });
-    
-    await newHistory.save((err) => {
+    User.findById(userID , (err, user) => {
         if (err) {
-        console.log(err);
+          console.log(err);
+        } else if (user) {
+          const history = new History({
+            userID: user._id,
+            activityType: activityType,
+            traitType: traitType ? traitType : undefined,
+            timestamp: Date.now(),
+          });
+      
+          history.save((err) => {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log('History created successfully!');
+            }
+          });
         } else {
-        console.log('History created successfully!');
+          console.log('User not found!');
         }
-    });
+      });
     }
 
 async function addUser(username, password, name, phonenumber) {
@@ -37,128 +46,190 @@ async function addUser(username, password, name, phonenumber) {
 }
 
 async function addCalendar(userID, activityType, date) {
-    const newCalendar = new Calendar({
-        userID: userID,
-        activityType: activityType,
-        date: date,
-    });
-    
-    await newCalendar.save((err) => {
+    User.findById(userID , (err, user) => {
         if (err) {
-        console.log(err);
+          console.log(err);
+        } else if (user) {
+            const newCalendar = new Calendar({
+                userID: userID,
+                activityType: activityType,
+                date: date,
+            });
+             newCalendar.save((err) => {
+                if (err) {
+                console.log(err);
+                } else {
+                console.log('Calendar created successfully!');
+                }
+                });    
+            addHistory(userID, 'Calendar Entry Created');  
         } else {
-        console.log('Calendar created successfully!');
+            console.log('User not found!');
         }
-    });    
-    addHistory(userID, 'Calendar Entry Created');
-
+        });   
     }
 
 async function addChat(userID, chatTrait) {
-    const newChat = new Chat({
-        userID: userID,
-        chatTrait: chatTrait,
-        dateSuggested: Date.now(),
-    });
-    
-    await newChat.save((err) => {
+    User.findById(userID , (err, user) => {
         if (err) {
-        console.log(err);
+          console.log(err);
+        } else if (user) {
+            const newChat = new Chat({
+                userID: userID,
+                chatTrait: chatTrait,
+                dateSuggested: Date.now(),
+            });
+
+             newChat.save((err) => {
+                if (err) {
+                console.log(err);
+                } else {
+                console.log('Chat created successfully!');
+                }
+            });
+
+            addHistory(userID, 'Chat Entry Created');
         } else {
-        console.log('Chat created successfully!');
+            console.log('User not found!');
         }
-    });
-    
-    addHistory(userID, 'Chat Entry Created');
+        });
     }
 
-async function addComms(userID, commsTrait) {
-    const newComms = new Comms({
-        userID: userID,
-        commsTrait: commsTrait,
-        dateSuggested: Date.now(),
-    });
-    
-    await newComms.save((err) => {
+async function addComms(userID, recipientNumber, recipientName) {
+    User.findById(userID , (err, user) => {
         if (err) {
-        console.log(err);
+          console.log(err);
+        } else if (user) {
+            const newComms = new Comms({
+                userID: userID,
+                recipientNumber: recipientNumber,
+                recipientName: recipientName,
+                dateSuggested: Date.now(),
+            });
+
+             newComms.save((err) => {
+                if (err) {
+                console.log(err);
+                } else {
+                console.log('Comms created successfully!');
+                }
+            });
+
+            addHistory(userID, 'Comms Entry Created');
         } else {
-        console.log('Comms created successfully!');
+            console.log('User not found!');
         }
-    });
-    
-    addHistory(userID, 'Comms Entry Created');
+    });    
     }
 
 async function addExercise(userID, ExerciseName, ExerciseDescription, ExerciseTrait) {
-    const newExercise = new Exercise({
-        userID: userID,
-        ExerciseName: ExerciseName,
-        ExerciseDescription: ExerciseDescription,
-        ExerciseTrait: ExerciseTrait,
-        dateSuggested: Date.now(),
-    });
-    
-    await newExercise.save((err) => {
+    User.findById(userID , (err, user) => {
         if (err) {
-        console.log(err);
+          console.log(err);
+        } else if (user) {
+            const newExercise = new Exercise({
+                userID: userID,
+                ExerciseName: ExerciseName,
+                ExerciseDescription: ExerciseDescription,
+                ExerciseTrait: ExerciseTrait,
+                dateSuggested: Date.now(),
+            });
+
+             newExercise.save((err) => {
+                if (err) {
+                console.log(err);
+                } else {
+                console.log('Exercise created successfully!');
+                }
+            });
+
+            addHistory(userID, 'Exercise Entry Created');
         } else {
-        console.log('Exercise created successfully!');
+            console.log('User not found!');
         }
     });
-    
-    addHistory(userID, 'Exercise Entry Created');
     }
 
 async function addMeal(userID, mealName, mealDescription, mealTrait) {
-    const newMeal = new Meal({
-        userID: userID,
-        mealName: mealName,
-        mealDescription: mealDescription,
-        mealTrait: mealTrait,
-        dateSuggested: Date.now(),
-    });
-    
-    await newMeal.save((err) => {
+    User.findById(userID , (err, user) => {
         if (err) {
-        console.log(err);
+          console.log(err);
+        } else if (user) {
+            const newMeal = new Meal({
+                userID: userID,
+                mealName: mealName,
+                mealDescription: mealDescription,
+                mealTrait: mealTrait,
+                dateSuggested: Date.now(),
+            });
+
+             newMeal.save((err) => {
+                if (err) {
+                console.log(err);
+                } else {
+                console.log('Meal created successfully!');
+                }
+            });
+
+            addHistory(userID, 'Meal Entry Created');
         } else {
-        console.log('Meal created successfully!');
+            console.log('User not found!');
         }
     });
-    
-    addHistory(userID, 'Meal Entry Created');
     }
 
-async function addPodcast(userID, podcastTrait) {
-    const newPodcast = new Podcast({
-        userID: userID,
-        podcastTrait: podcastTrait,
-        dateSuggested: Date.now(),
-    });
-    
-    await newPodcast.save((err) => {
+async function addPodcast(userID, podcastName,podcastURL,podcastDescription,podcastTrait) {
+    User.findById(userID , (err, user) => {
         if (err) {
-        console.log(err);
+          console.log(err);
+        } else if (user) {
+            const newPodcast = new Podcast({
+                userID: userID,
+                podcastName: podcastName,
+                podcastURL: podcastURL,
+                podcastDescription: podcastDescription,
+                podcastTrait: podcastTrait,
+                timestamp: Date.now(),
+            });
+
+             newPodcast.save((err) => {
+                if (err) {
+                console.log(err);
+                } else {
+                console.log('Podcast created successfully!');
+                }
+            });
+
+            addHistory(userID, 'Podcast Entry Created');
         } else {
-        console.log('Podcast created successfully!');
+            console.log('User not found!');
         }
     });
-    
-    addHistory(userID, 'Podcast Entry Created');
     }
 
-async function addTrait(traitName, traitDescription) {
-    const newTrait = new Trait({
-        traitName: traitName,
-        traitDescription: traitDescription,
-    });
-    
-    await newTrait.save((err) => {
+async function addTrait(userID, traitType) {
+    User.findById(userID , (err, user) => {
         if (err) {
-        console.log(err);
+            console.log(err);
+        } else if (user) {
+
+            const newTrait = new Trait({
+                userID: userID,
+                traitType: traitType,
+                traitDesirability: 0.5,
+                });
+            
+            newTrait.save((err) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log('Trait created successfully!');
+                }
+            });
+
+            addHistory(userID, 'Trait Entry Created');
         } else {
-        console.log('Trait created successfully!');
+            console.log('User not found!');
         }
     });
     }
@@ -222,3 +293,18 @@ async function updateTrait(userID, traitID, operation) {
         }
       });
     }
+
+module.exports = {
+    addHistory,
+    addUser,
+    addCalendar,
+    addChat,
+    addComms,
+    addExercise,
+    addMeal,
+    addPodcast,
+    addTrait,
+    deleteUser,
+    deleteCalendar,
+    updateTrait,
+};
