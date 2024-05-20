@@ -1,6 +1,7 @@
 const AssistantV2 = require('ibm-watson/assistant/v2');
 const { IamAuthenticator } = require('ibm-watson/auth');
 const connectDB = require('./db.js');
+const { User, Trait, Chat, Comms, History, Podcast, Calendar, Exercise, Meal } = require('./model.js');
 const mongoose = require('mongoose');
 
 // Connect to your MongoDB database
