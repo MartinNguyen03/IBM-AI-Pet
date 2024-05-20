@@ -9,7 +9,7 @@ async function createSampleData() {
     username: 'ai',
     password: 'pet',
     name: 'AI Pet',
-    phonenumber: '123',
+    phoneNumber: '123',
   });
 
   await user.save();
@@ -36,7 +36,7 @@ async function createSampleData() {
   // Create a new communication using the user ID
   const comms = new Comms({
     userID: user._id,
-    recipientNumber: '1234567890',
+    recipientPhoneNumber: '1234567890',
     recipientName: 'David',
     timestamp: Date.now(),
   });
