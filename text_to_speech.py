@@ -12,7 +12,7 @@ text_to_speech.set_disable_ssl_verification(True)
 with open('hello_world.wav', 'wb') as audio_file:
     audio_file.write(
         text_to_speech.synthesize(
-            'Martin stop working too late, you need to take care of your health',
+            'oskot walla balash ma aneekak',
             voice='en-US_AllisonV3Voice',
             accept='audio/wav'        
         ).get_result().content)
