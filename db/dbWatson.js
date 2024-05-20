@@ -1,12 +1,10 @@
 const AssistantV2 = require('ibm-watson/assistant/v2');
 const { IamAuthenticator } = require('ibm-watson/auth');
+const connectDB = require('./db.js');
 const mongoose = require('mongoose');
 
 // Connect to your MongoDB database
-mongoose.connect('mongodb://localhost/test', {useNewUrlParser: true, useUnifiedTopology: true});
-
-// Define your MongoDB model
-const User = mongoose.model('User', { name: String });
+connectDB();
 
 // Create an instance of the Watson Assistant service
 const assistant = new AssistantV2({
