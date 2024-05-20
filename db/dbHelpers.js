@@ -260,7 +260,161 @@ async function deleteCalendar(userID, calendarID) {
 
 /* ------------------- GET FUNCTIONS ------------------- */
 
+async function getUser(userID) {
+    await User.findById(userID, (err, user) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(user);
+        }
+      });
+    }
+async function getCalendar(userID) {
+    await Calendar.find({ userID }, (err, calendar) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(calendar);
+        }
+      });
+    }
 
+async function getChat(userID) {
+    await Chat.find({ userID }, (err, chat) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(chat);
+        }
+      });
+    }
+  
+async function getComms(userID) {
+    await Comms.find({ userID }, (err, comms) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(comms);
+        }
+      });
+    }
+
+async function getExercise(userID) {
+    await Exercise.find({ userID }, (err, exercise) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(exercise);
+        }
+      });
+    }
+
+async function getMeal(userID) {
+    await Meal.find({ userID }, (err, meal) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(meal);
+        }
+      });
+    }
+
+async function getPodcast(userID) {
+    await Podcast.find({ userID }, (err, podcast) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(podcast);
+        }
+      });
+    }
+
+async function getTrait(userID) {
+  await Trait.find({ userID }, (err, trait) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(trait);
+    }
+  });
+}
+
+async function getHistory(userID) {
+    await History.find({ userID }, (err, history) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(history);
+        }
+      });
+    }
+
+/* This function is used to get all exercises with a specific trait type along with it's desirability.
+* getExerciseTrait <userID> <traitType>
+*/
+async function getExerciseTrait(userID, traitType) {
+  let exercises = await Exercise.find({ userID, ExerciseTrait: traitType });
+  if (!exercises) {
+      console.log('No exercise found');
+      return;
+  }
+  let trait = await Trait.findOne({ traitType: traitType });
+  if (!trait) {
+      console.log('No trait found for this exercise');
+      return;
+  }
+  let exerciseTrait = exercises.map(exercises => ({ ...exercises, desirability: trait.desirability }));
+  return exerciseTrait;
+}
+
+/* This function is used to get all meals with a specific trait type along with it's desirability.
+ * getMealTrait <userID> <traitType>
+ */
+async function getMealTrait(userID, traitType) {
+  let meals = await Meal.find({ userID, mealTrait: traitType });
+  if (!meals) {
+      console.log('No meal found');
+      return;
+  }
+  let trait = await Trait.findOne({ traitType: traitType });
+  if (!trait) {
+      console.log('No trait found for this meal');
+      return;
+  }
+  let mealTrait = meals.map(meals => ({ ...meals, desirability: trait.desirability }));
+  return mealTrait;
+}
+
+/* This function is used to get all podcasts with a specific trait type along with it's desirability.
+  * getPodcastTrait <userID> <traitType>
+  */
+async function getPodcastTrait(userID, traitType) {
+  let podcasts = await Podcast.find({ userID, podcastTrait: traitType });
+  if (!podcasts) {
+      console.log('No podcast found');
+      return;
+  }
+  let trait = await Trait.findOne({ traitType: traitType });
+  if (!trait) {
+      console.log('No trait found for this podcast');
+      return;
+  }
+  let podcastTrait = podcasts.map(podcasts => ({ ...podcasts, desirability: trait.desirability }));
+  return podcastTrait;
+}
+
+/* This function is used to get the desirability of a specific trait.
+  * getTraitDesirability <userID> <traitType>
+  */
+async function getTraitDesirability(userID, traitType) {
+    await Trait.find({ userID, traitType }, (err, trait) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(trait.desirability);
+        }
+      });
+    }
 /* ------------------- UPDATE FUNCTIONS ------------------- */
 
 /* This script is used to update a trait's desirability in the database.
@@ -303,8 +457,20 @@ module.exports = {
     addExercise,
     addMeal,
     addPodcast,
+    getUser,
+    getPodcast,
+    getTrait,
+    getCalendar,
+    getChat,
+    getComms,
+    getExercise,
+    getMeal,
+    getExerciseTrait,
+    getMealTrait,
+    getPodcastTrait,
+    getTraitDesirability,
     addTrait,
     deleteUser,
     deleteCalendar,
-    updateTrait,
-};
+    updateTrait
+}; 
