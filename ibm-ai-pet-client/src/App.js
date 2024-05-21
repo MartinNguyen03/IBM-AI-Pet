@@ -14,3 +14,6 @@ function App() {
 
 export default App;
 
+//how to run
+// cd ibm-ai-pet-client
+// npm start
