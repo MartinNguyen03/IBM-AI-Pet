@@ -1,0 +1,13 @@
+{
+  "name": "ibm-ai-pet",
+  "version": "1.0.0",
+  "description": "2024 Group Consultancy Project for IBM innovating AI Robot",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
