@@ -16,15 +16,16 @@
 .login-container h2 {
   color: #007bff;
   margin-bottom: 20px;
-  font-family: 'Arial', sans-serif;
-  font-size: 24px;
+  font-family: 'Monaco', sans-serif;
+  font-size: 28px;
 }
 
 .login-container label {
   display: block;
   margin-bottom: 10px;
-  font-family: 'Arial', sans-serif;
+  font-family: 'Monaco', sans-serif;
   font-size: 16px;
+  margin-right: 205px;
 }
 
 .login-container input[type="text"],
@@ -45,7 +46,7 @@
   border-radius: 4px;
   padding: 10px;
   margin-top: 10px;
-  font-family: 'Arial', sans-serif;
+  font-family: 'Monaco', sans-serif;
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
@@ -60,14 +61,3 @@
   transform: translateY(1px);
 }
 
-.login-label {
-  display: inline-block;
-  width: 100px; /* Adjust the width as needed */
-  text-align: left;
-  margin-right: 10px;
-  font-family: 'Arial', sans-serif;
-  font-size: 16px;
-  color: #333; /* Adjust color as needed */
-}
-
-  
