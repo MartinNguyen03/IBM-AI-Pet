@@ -1,3 +1,4 @@
+//LoginForm.js
 import React, { useState } from 'react';
 import WelcomePage from './WelcomePage'; // Import WelcomePage component
 import './LoginForm.css'; // Import CSS file for styling

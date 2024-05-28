@@ -1,3 +1,4 @@
+//BlankPage.js
 import React from 'react';
 import './BlankPage.css'; // Import CSS file for styling
 

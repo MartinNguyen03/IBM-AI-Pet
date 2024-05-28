@@ -1,19 +1,63 @@
+/* WelcomePage.css */
+
 .welcome-container {
-    background-color: #f8f9fa;
-    border: 1px solid #ced4da;
-    border-radius: 5px;
-    padding: 20px;
-    width: 300px;
-    margin: 0 auto;
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .welcome-container h2 {
-    color: #007bff;
-  }
-  
-  .welcome-container p {
-    color: #495057;
-  }
+  background-color: #ffffff;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  padding: 30px;
+  width: 90%;
+  max-width: 400px;
+  margin: 40px auto;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.welcome-container:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.welcome-container h2 {
+  color: #007bff;
+  margin-bottom: 20px;
+  font-family: 'Arial', sans-serif;
+  font-size: 24px;
+}
+
+.welcome-container p {
+  color: #495057;
+  margin-bottom: 20px;
+  font-family: 'Arial', sans-serif;
+  font-size: 16px;
+}
+
+.welcome-container button {
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  margin: 10px 5px;
+  font-family: 'Arial', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.welcome-container button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+.welcome-container button:active {
+  transform: translateY(1px);
+}
+
+.location-container {
+  margin-top: 20px;
+  font-family: 'Arial', sans-serif;
+  font-size: 14px;
+  color: #333;
+}
+
   
