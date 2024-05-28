@@ -1,3 +1,4 @@
+// WelcomePage.js
 import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import BlankPage from './BlankPage';
@@ -6,6 +7,14 @@ import './WelcomePage.css'; // Import CSS file for styling
 function WelcomePage() {
     const [showBlankPage, setShowBlankPage] = useState(false); // State to track whether to show the blank page
     const [location, setLocation] = useState(null); // State to store user's location
+
+    const handleLogout = () => {
+        window.localStorage.removeItem('loggedIn'); // Clear the logged-in status
+        window.localStorage.removeItem('username'); // Optionally clear the username
+        // Redirect to the login page
+        window.location.href = '/login'; // Using a relative URL // check this later if there is a better way!!!
+        return <Navigate to="/login" />;
+    };
 
     const loggedIn = window.localStorage.getItem('loggedIn');
     if (!loggedIn) {
@@ -49,6 +58,7 @@ function WelcomePage() {
                     {location && (
                         <p>Your location is {location.latitude}, {location.longitude}</p>
                     )}
+                    <button onClick={handleLogout}>Logout</button> {/* Logout button */}
                 </div>
             )}
             {showBlankPage && <BlankPage onBack={goBack} />} {/* Render BlankPage conditionally */}
@@ -57,4 +67,3 @@ function WelcomePage() {
 }
 
 export default WelcomePage;
-
