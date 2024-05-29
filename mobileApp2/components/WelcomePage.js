@@ -1,14 +1,17 @@
+// components/WelcomePage.js
 import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet, Alert } from 'react-native';
 import * as Location from 'expo-location';
 import BlankPage from './BlankPage';
 
-export default function WelcomePage() {
+export default function WelcomePage({ navigation }) {
   const [showBlankPage, setShowBlankPage] = useState(false);
   const [location, setLocation] = useState(null);
 
   const handleLogout = () => {
     Alert.alert('Logout', 'You have been logged out.');
+    
+    navigation.navigate('Login');
   };
 
   const goToBlankPage = () => {
@@ -60,5 +63,3 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 });
-
-

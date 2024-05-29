@@ -1,32 +1,28 @@
-import React, { useState } from 'react';
+// components/LoginForm.js
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
-import WelcomePage from './WelcomePage';
 
-export default function LoginForm() {
+export default function LoginForm({ navigation }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const handleUsernameChange = (text) => {
-    setUsername(text);
-  };
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      // Reset the form when the screen comes into focus
+      setUsername('');
+      setPassword('');
+    });
 
-  const handlePasswordChange = (text) => {
-    setPassword(text);
-  };
+    return unsubscribe;
+  }, [navigation]);
 
-  const handleSubmit = () => {
-    if (username === 'Ana' && password === 'parrot') {
-      setIsLoggedIn(true);
-      Alert.alert('Login Successful');
+  const handleLogin = () => {
+    if (username === 'Ana' && password === 'p') {
+      navigation.navigate('Welcome');
     } else {
-      Alert.alert('Invalid username or password');
+      Alert.alert('Invalid Credentials', 'Please enter the correct username and password.');
     }
   };
-
-  if (isLoggedIn) {
-    return <WelcomePage />;
-  }
 
   return (
     <View style={styles.container}>
@@ -35,16 +31,16 @@ export default function LoginForm() {
         style={styles.input}
         placeholder="Username"
         value={username}
-        onChangeText={handleUsernameChange}
+        onChangeText={setUsername}
       />
       <TextInput
         style={styles.input}
         placeholder="Password"
         value={password}
-        onChangeText={handlePasswordChange}
+        onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Login" onPress={handleSubmit} />
+      <Button title="Login" onPress={handleLogin} />
     </View>
   );
 }
@@ -62,8 +58,7 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     borderWidth: 1,
     marginBottom: 20,
-    paddingLeft: 8,
+    paddingHorizontal: 10,
   },
 });
-
 
