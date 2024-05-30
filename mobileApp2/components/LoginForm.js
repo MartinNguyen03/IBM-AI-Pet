@@ -1,26 +1,32 @@
-// components/LoginForm.js
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 
 export default function LoginForm({ navigation }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      // Reset the form when the screen comes into focus
-      setUsername('');
-      setPassword('');
-    });
+  const handleLogin = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/users', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const users = await response.json();
+      
+      // Check if the username and password match any user in the database
+      const user = users.find(user => user.username === username && user.password === password);
 
-    return unsubscribe;
-  }, [navigation]);
-
-  const handleLogin = () => {
-    if (username === 'Ana' && password === 'p') {
-      navigation.navigate('Welcome');
-    } else {
-      Alert.alert('Invalid Credentials', 'Please enter the correct username and password.');
+      if (user) {
+        navigation.navigate('Welcome');
+      } else {
+        Alert.alert('Invalid Credentials', 'Please enter the correct username and password.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An error occurred while trying to login.');
     }
   };
 
@@ -61,4 +67,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
 });
+
+
+
 
