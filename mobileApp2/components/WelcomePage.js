@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet, Alert } from 'react-native';
 import * as Location from 'expo-location';
 import * as Contacts from 'expo-contacts';
+import * as Calendar from 'expo-calendar';
 import BlankPage from './BlankPage';
 
 export default function WelcomePage({ navigation }) {
   const [showBlankPage, setShowBlankPage] = useState(false);
   const [location, setLocation] = useState(null);
   const [contacts, setContacts] = useState([]);
+  const [events, setEvents] = useState([]);
 
   const handleLogout = () => {
     Alert.alert('Logout', 'You have been logged out.');
@@ -51,6 +53,23 @@ export default function WelcomePage({ navigation }) {
     }
   };
 
+  const handleGetEvents = async () => {
+    const { status } = await Calendar.requestCalendarPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission to access calendar was denied');
+      return;
+    }
+
+    const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+    if (calendars.length > 0) {
+      const calendarId = calendars[0].id;
+      const events = await Calendar.getEventsAsync([calendarId], new Date(), new Date(new Date().setDate(new Date().getDate() + 7)));
+      setEvents(events.slice(0, 2));
+    } else {
+      Alert.alert('No calendars found');
+    }
+  };
+
   return (
     <>
       {!showBlankPage && (
@@ -71,6 +90,14 @@ export default function WelcomePage({ navigation }) {
               {contact.phoneNumbers && contact.phoneNumbers.length > 0 && (
                 <Text>{contact.phoneNumbers[0].number}</Text>
               )}
+            </View>
+          ))}
+          <Button title="Get Calendar Events" onPress={handleGetEvents} />
+          {events.map((event, index) => (
+            <View key={index}>
+              <Text>{event.title}</Text>
+              <Text>{new Date(event.startDate).toLocaleString()}</Text>
+              <Text>{new Date(event.endDate).toLocaleString()}</Text>
             </View>
           ))}
           <Button title="Logout" onPress={handleLogout} />
