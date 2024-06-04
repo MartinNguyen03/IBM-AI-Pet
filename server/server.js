@@ -74,6 +74,22 @@ app.post('/calendar', async (req, res) => {
   }
 });
 
+app.post('/users', async (req, res) => {
+  try {
+    const { userID, latitude, longitude } = req.body;
+    await User.findByIdAndUpdate(userID, {
+      location_latitude: latitude,
+      location_longitude: longitude,
+    });
+    res.status(200).send('Location updated successfully');
+  } catch (err) {
+    console.error('Error updating location:', err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

@@ -11,6 +11,8 @@ export default function WelcomePage({ navigation }) {
   const [contacts, setContacts] = useState([]);
   const [events, setEvents] = useState([]);
 
+  
+
   const handleLogout = () => {
     Alert.alert('Logout', 'You have been logged out.');
     navigation.navigate('Login');
@@ -30,10 +32,29 @@ export default function WelcomePage({ navigation }) {
       Alert.alert('Permission to access location was denied');
       return;
     }
-
+  
     let loc = await Location.getCurrentPositionAsync({});
     setLocation(loc.coords);
+  
+    try {
+      await fetch('http://localhost:5000/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userID: '664b59ac96a2d9ddb3ad1986', // Replace with actual userID
+          latitude: loc.coords.latitude,
+          longitude: loc.coords.longitude,
+        }),
+      });
+    } catch (err) {
+      console.error('Error sending location to server:', err);
+    }
   };
+  
+ 
+  
 
   const handleGetContacts = async () => {
     const { status } = await Contacts.requestPermissionsAsync();
