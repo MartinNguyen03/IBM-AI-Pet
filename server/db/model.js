@@ -23,7 +23,7 @@ const UserSchema = new Schema({
     required: false
   },
   location: {
-    type: Double,
+    type: Number,
     required: false
   },
 }, { collection: 'User' });
