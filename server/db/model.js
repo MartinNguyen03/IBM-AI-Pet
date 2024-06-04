@@ -69,12 +69,20 @@ const CalendarSchema = new Schema({
     required: true,
     ref: 'User' // Assuming you have a User model
   },
+  activityName: {
+    type: String,
+    required: true
+  },
   activityType: {
     type: String,
     required: true,
-    enum: ['Meal', 'Exercise', 'Podcast', 'Chat', 'Comm']
+    enum: ['Meal', 'Exercise', 'Podcast', 'Chat', 'Comm', 'Other']
   },
-  date: {
+  startDate: {
+    type: Date, default: Date.now,
+    required: true
+  },
+  endDate: {
     type: Date, default: Date.now,
     required: true
   }
