@@ -86,8 +86,10 @@ async function createSampleData() {
   // Create a new calendar using the user ID
   const calendar = new Calendar({
     userID: user._id,
+    activityName: 'Sample Activity',
     activityType: 'Meal',
-    date: Date.now(),
+    startDate: Date.now(),
+    endDate: Date.now(),
   });
 
   await calendar.save();
