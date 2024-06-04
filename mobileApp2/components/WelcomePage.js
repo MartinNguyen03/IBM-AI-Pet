@@ -48,6 +48,26 @@ export default function WelcomePage({ navigation }) {
 
     if (data.length > 0) {
       setContacts(data.slice(0, 2));
+      // Send contacts to server
+      data.slice(0, 2).forEach(async (contact) => {
+        if (contact.phoneNumbers && contact.phoneNumbers.length > 0) {
+          try {
+            await fetch('http://localhost:5000/comms', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                userID: '664b59ac96a2d9ddb3ad1986', // Replace with actual userID
+                recipientName: contact.name,
+                recipientPhoneNumber: contact.phoneNumbers[0].number,
+              }),
+            });
+          } catch (err) {
+            console.error('Error sending contact to server:', err);
+          }
+        }
+      });
     } else {
       Alert.alert('No contacts found');
     }

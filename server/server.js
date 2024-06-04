@@ -25,17 +25,32 @@ const connectDB = async () => {
 
 connectDB();
 
-const { User } = require('./db/model.js');
-
+const { User, Comms } = require('./db/model.js');
 
 app.get('/users', async (req, res) => {
   try {
     const users = await User.find();
     console.log(users);
     res.json(users);
-
   } catch (err) {
     console.log('error fetching users');
+    res.status(500).send('Server Error');
+  }
+});
+
+app.post('/comms', async (req, res) => {
+  try {
+    const { userID, recipientName, recipientPhoneNumber } = req.body;
+    const newComms = new Comms({
+      userID,
+      recipientName,
+      recipientPhoneNumber,
+      timestamp: Date.now(),
+    });
+    await newComms.save();
+    res.status(201).send('Comms saved successfully');
+  } catch (err) {
+    console.error('Error saving comms:', err.message);
     res.status(500).send('Server Error');
   }
 });
