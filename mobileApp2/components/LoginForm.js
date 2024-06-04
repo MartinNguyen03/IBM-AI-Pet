@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function LoginForm({ navigation }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  
 
   const handleLogin = async () => {
     try {
@@ -29,6 +29,14 @@ export default function LoginForm({ navigation }) {
       Alert.alert('Error', 'An error occurred while trying to login.');
     }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      // Clear the username and password when the screen is focused
+      setUsername('');
+      setPassword('');
+    }, [])
+  );
 
   return (
     <View style={styles.container}>
@@ -67,6 +75,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
 });
+
 
 
 
