@@ -25,7 +25,7 @@ const connectDB = async () => {
 
 connectDB();
 
-const { User, Comms } = require('./db/model.js');
+const { User, Comms, Calendar } = require('./db/model.js');
 
 app.get('/users', async (req, res) => {
   try {
@@ -54,6 +54,26 @@ app.post('/comms', async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+
+app.post('/calendar', async (req, res) => {
+  try {
+    const { userID, activityType, startDate, endDate, activityName } = req.body;
+    const newCalendarEvent = new Calendar({
+      userID,
+      activityType,
+      activityName,
+      startDate: startDate,
+      endDate: endDate
+      
+    });
+    await newCalendarEvent.save();
+    res.status(201).send('Calendar event saved successfully');
+  } catch (err) {
+    console.error('Error saving calendar event:', err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

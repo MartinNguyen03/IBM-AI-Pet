@@ -79,12 +79,33 @@ export default function WelcomePage({ navigation }) {
       Alert.alert('Permission to access calendar was denied');
       return;
     }
-
+  
     const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
     if (calendars.length > 0) {
       const calendarId = calendars[0].id;
-      const events = await Calendar.getEventsAsync([calendarId], new Date(), new Date(new Date().setDate(new Date().getDate() + 7)));
+      const events = await Calendar.getEventsAsync([calendarId], new Date(), new Date(new Date().setDate(new Date().getDate() + 30)));
       setEvents(events.slice(0, 2));
+      
+      // Send events to the server
+      events.slice(0, 2).forEach(async (event) => {
+        try {
+          await fetch('http://localhost:5000/calendar', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userID: '664b59ac96a2d9ddb3ad1986', // Replace with actual userID
+              activityType: 'Other', // Assuming 'Event' is a valid type, adjust as needed
+              activityName: event.title,
+              startDate: event.startDate,
+              endDate: event.endDate,
+            }),
+          });
+        } catch (err) {
+          console.error('Error sending event to server:', err);
+        }
+      });
     } else {
       Alert.alert('No calendars found');
     }
