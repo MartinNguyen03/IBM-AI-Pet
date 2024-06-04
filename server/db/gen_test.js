@@ -11,6 +11,7 @@ async function createSampleData() {
     password: 'pet',
     name: 'AI Pet',
     phoneNumber: '123',
+    location: 0,
   });
 
   await user.save();

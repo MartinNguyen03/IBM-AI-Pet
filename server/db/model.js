@@ -1,4 +1,5 @@
 //IBM-AI-PET/db/model.js
+const { Double } = require('mongodb');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -19,6 +20,10 @@ const UserSchema = new Schema({
   },
   phoneNumber: {
     type: String,
+    required: false
+  },
+  location: {
+    type: Double,
     required: false
   },
 }, { collection: 'User' });
