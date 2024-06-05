@@ -114,7 +114,7 @@ export default function WelcomePage({ navigation, route }) {
             },
             body: JSON.stringify({
               userID: userID, // Use userID from route params
-              activityType: 'Other', // Assuming 'Event' is a valid type, adjust as needed
+              activityType: 'Other',
               activityName: event.title,
               startDate: event.startDate,
               endDate: event.endDate,
