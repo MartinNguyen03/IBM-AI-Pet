@@ -5,13 +5,12 @@ import * as Contacts from 'expo-contacts';
 import * as Calendar from 'expo-calendar';
 import BlankPage from './BlankPage';
 
-export default function WelcomePage({ navigation }) {
+export default function WelcomePage({ navigation, route }) {
+  const { userID } = route.params;
   const [showBlankPage, setShowBlankPage] = useState(false);
   const [location, setLocation] = useState(null);
   const [contacts, setContacts] = useState([]);
   const [events, setEvents] = useState([]);
-
-  
 
   const handleLogout = () => {
     Alert.alert('Logout', 'You have been logged out.');
@@ -43,7 +42,7 @@ export default function WelcomePage({ navigation }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userID: '664b59ac96a2d9ddb3ad1986', // Replace with actual userID
+          userID: userID, // Use userID from route params
           latitude: loc.coords.latitude,
           longitude: loc.coords.longitude,
         }),
@@ -52,9 +51,6 @@ export default function WelcomePage({ navigation }) {
       console.error('Error sending location to server:', err);
     }
   };
-  
- 
-  
 
   const handleGetContacts = async () => {
     const { status } = await Contacts.requestPermissionsAsync();
@@ -79,7 +75,7 @@ export default function WelcomePage({ navigation }) {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                userID: '664b59ac96a2d9ddb3ad1986', // Replace with actual userID
+                userID: userID, // Use userID from route params
                 recipientName: contact.name,
                 recipientPhoneNumber: contact.phoneNumbers[0].number,
               }),
@@ -116,7 +112,7 @@ export default function WelcomePage({ navigation }) {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              userID: '664b59ac96a2d9ddb3ad1986', // Replace with actual userID
+              userID: userID, // Use userID from route params
               activityType: 'Other', // Assuming 'Event' is a valid type, adjust as needed
               activityName: event.title,
               startDate: event.startDate,
