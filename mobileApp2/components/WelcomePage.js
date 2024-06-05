@@ -1,5 +1,5 @@
 //ibm-ai-pet/mobileApp2/components/WelcomePage.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, Alert } from 'react-native';
 import * as Location from 'expo-location';
 import * as Contacts from 'expo-contacts';
@@ -12,6 +12,47 @@ export default function WelcomePage({ navigation, route }) {
   const [location, setLocation] = useState(null);
   const [contacts, setContacts] = useState([]);
   const [events, setEvents] = useState([]);
+
+  useEffect(() => {
+    const fetchContactsFromServer = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/comms/${userID}`);
+        const serverContacts = await response.json();
+
+        const { data: deviceContacts } = await Contacts.getContactsAsync({
+          fields: [Contacts.Fields.PhoneNumbers],
+        });
+
+        const newContacts = serverContacts.filter(serverContact =>
+          !deviceContacts.some(deviceContact =>
+            deviceContact.name === serverContact.recipientName &&
+            deviceContact.phoneNumbers.some(phone =>
+              phone.number === serverContact.recipientPhoneNumber
+            )
+          )
+        );
+
+        if (newContacts.length > 0) {
+          for (const contact of newContacts) {
+            const contactData = {
+              [Contacts.Fields.FirstName]: contact.recipientName,
+              [Contacts.Fields.PhoneNumbers]: [{ number: contact.recipientPhoneNumber }],
+            };
+
+            // Add the console log here to debug
+            console.log('Adding contact:', contactData);
+
+            await Contacts.addContactAsync(contactData);
+          }
+          Alert.alert('New contacts have been added to your device.');
+        }
+      } catch (error) {
+        console.error('Error fetching contacts from server:', error);
+      }
+    };
+
+    fetchContactsFromServer();
+  }, [userID]);
 
   const handleLogout = () => {
     Alert.alert('Logout', 'You have been logged out.');
@@ -43,7 +84,7 @@ export default function WelcomePage({ navigation, route }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userID: userID, // Use userID from route params
+          userID: userID,
           latitude: loc.coords.latitude,
           longitude: loc.coords.longitude,
         }),
@@ -76,7 +117,7 @@ export default function WelcomePage({ navigation, route }) {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                userID: userID, // Use userID from route params
+                userID: userID,
                 recipientName: contact.name,
                 recipientPhoneNumber: contact.phoneNumbers[0].number,
               }),
@@ -113,7 +154,7 @@ export default function WelcomePage({ navigation, route }) {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              userID: userID, // Use userID from route params
+              userID: userID,
               activityType: 'Other',
               activityName: event.title,
               startDate: event.startDate,

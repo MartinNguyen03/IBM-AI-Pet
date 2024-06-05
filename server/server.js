@@ -64,6 +64,18 @@ app.post('/comms', async (req, res) => {
   }
 });
 
+app.get('/comms/:userID', async (req, res) => {
+  try {
+    const { userID } = req.params;
+    const contacts = await Comms.find({ userID });
+    res.status(200).json(contacts);
+  } catch (err) {
+    console.error('Error fetching contacts:', err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+
 app.post('/calendar', async (req, res) => {
   try {
     const { userID, activityType, startDate, endDate, activityName } = req.body;
