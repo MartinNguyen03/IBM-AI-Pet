@@ -42,14 +42,22 @@ app.get('/users', async (req, res) => {
 app.post('/comms', async (req, res) => {
   try {
     const { userID, recipientName, recipientPhoneNumber } = req.body;
-    const newComms = new Comms({
-      userID,
-      recipientName,
-      recipientPhoneNumber,
-      timestamp: Date.now(),
-    });
-    await newComms.save();
-    res.status(201).send('Comms saved successfully');
+    const existingContact = await Comms.findOne({ userID, recipientName });
+
+    if (existingContact) {
+      existingContact.recipientPhoneNumber = recipientPhoneNumber;
+      await existingContact.save();
+      res.status(200).send('Comms updated successfully');
+    } else {
+      const newComms = new Comms({
+        userID,
+        recipientName,
+        recipientPhoneNumber,
+        timestamp: Date.now(),
+      });
+      await newComms.save();
+      res.status(201).send('Comms saved successfully');
+    }
   } catch (err) {
     console.error('Error saving comms:', err.message);
     res.status(500).send('Server Error');
