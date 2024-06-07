@@ -139,6 +139,13 @@ export default function WelcomePage({ navigation, route }) {
       Alert.alert('No contacts found');
     }
   };
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      handleGetContacts();
+    }, 3000); // 3000 milliseconds = 3 seconds
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, []);
 
   const handleGetEvents = async () => {
     const { status } = await Calendar.requestCalendarPermissionsAsync();
