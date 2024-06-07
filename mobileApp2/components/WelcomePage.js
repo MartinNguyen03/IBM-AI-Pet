@@ -13,45 +13,53 @@ export default function WelcomePage({ navigation, route }) {
   const [contacts, setContacts] = useState([]);
   const [events, setEvents] = useState([]);
 
-  useEffect(() => {
-    const fetchContactsFromServer = async () => {
-      try {
-        const response = await fetch(`http://localhost:5000/comms/${userID}`);
-        const serverContacts = await response.json();
+  const fetchContactsFromServer = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/comms/${userID}`);
+      const serverContacts = await response.json();
 
-        const { data: deviceContacts } = await Contacts.getContactsAsync({
-          fields: [Contacts.Fields.PhoneNumbers],
-        });
+      const { data: deviceContacts } = await Contacts.getContactsAsync({
+        fields: [Contacts.Fields.PhoneNumbers],
+      });
 
-        const newContacts = serverContacts.filter(serverContact =>
-          !deviceContacts.some(deviceContact =>
-            deviceContact.name === serverContact.recipientName &&
-            deviceContact.phoneNumbers.some(phone =>
-              phone.number === serverContact.recipientPhoneNumber
-            )
+      const newContacts = serverContacts.filter(serverContact =>
+        !deviceContacts.some(deviceContact =>
+          deviceContact.name === serverContact.recipientName &&
+          deviceContact.phoneNumbers.some(phone =>
+            phone.number === serverContact.recipientPhoneNumber
           )
-        );
+        )
+      );
 
-        if (newContacts.length > 0) {
-          for (const contact of newContacts) {
-            const contactData = {
-              [Contacts.Fields.FirstName]: contact.recipientName,
-              [Contacts.Fields.PhoneNumbers]: [{ number: contact.recipientPhoneNumber }],
-            };
+      if (newContacts.length > 0) {
+        for (const contact of newContacts) {
+          const contactData = {
+            [Contacts.Fields.FirstName]: contact.recipientName,
+            [Contacts.Fields.PhoneNumbers]: [{ number: contact.recipientPhoneNumber }],
+          };
 
-            // Add the console log here to debug
-            console.log('Adding contact:', contactData);
+          // Add the console log here to debug
+          console.log('Adding contact:', contactData);
 
-            await Contacts.addContactAsync(contactData);
-          }
-          Alert.alert('New contacts have been added to your device.');
+          await Contacts.addContactAsync(contactData);
         }
-      } catch (error) {
-        console.error('Error fetching contacts from server:', error);
+        Alert.alert('New contacts have been added to your device.');
       }
-    };
+    } catch (error) {
+      console.error('Error fetching contacts from server:', error);
+    }
+  };
 
+  useEffect(() => {
     fetchContactsFromServer();
+  }, [userID]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchContactsFromServer();
+    }, 3000); // 3000 milliseconds = 3 seconds
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, [userID]);
 
   const handleLogout = () => {
