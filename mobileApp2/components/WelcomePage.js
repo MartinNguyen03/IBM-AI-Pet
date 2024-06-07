@@ -114,9 +114,9 @@ export default function WelcomePage({ navigation, route }) {
     });
 
     if (data.length > 0) {
-      setContacts(data.slice(0, 2));
-      // Send contacts to server
-      data.slice(0, 2).forEach(async (contact) => {
+      setContacts(data);
+      // Send all contacts to the server
+      data.forEach(async (contact) => {
         if (contact.phoneNumbers && contact.phoneNumbers.length > 0) {
           try {
             await fetch('http://localhost:5000/comms', {
@@ -139,6 +139,7 @@ export default function WelcomePage({ navigation, route }) {
       Alert.alert('No contacts found');
     }
   };
+
   useEffect(() => {
     const intervalId = setInterval(() => {
       handleGetContacts();
