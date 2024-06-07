@@ -24,10 +24,8 @@ export default function WelcomePage({ navigation, route }) {
 
       const newContacts = serverContacts.filter(serverContact =>
         !deviceContacts.some(deviceContact =>
-          deviceContact.name === serverContact.recipientName &&
-          deviceContact.phoneNumbers.some(phone =>
-            phone.number === serverContact.recipientPhoneNumber
-          )
+          deviceContact.name === serverContact.recipientName 
+          
         )
       );
 
