@@ -12,6 +12,7 @@ export default function WelcomePage({ navigation, route }) {
   const [location, setLocation] = useState(null);
   const [contacts, setContacts] = useState([]);
   const [events, setEvents] = useState([]);
+  const [previousEvents, setPreviousEvents] = useState([]);
 
   const fetchContactsFromServer = async () => {
     try {
@@ -183,6 +184,80 @@ export default function WelcomePage({ navigation, route }) {
       Alert.alert('No calendars found');
     }
   };
+
+  const fetchAndUpdateEvents = async () => {
+    const { status } = await Calendar.requestCalendarPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission to access calendar was denied');
+      return;
+    }
+
+    const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+    if (calendars.length > 0) {
+      const calendarId = calendars[0].id;
+      const events = await Calendar.getEventsAsync([calendarId], new Date(), new Date(new Date().setDate(new Date().getDate() + 30)));
+      
+      // Compare with previous events
+      const newEvents = events.filter(event => !previousEvents.some(prevEvent => prevEvent.title === event.title));
+      const deletedEvents = previousEvents.filter(prevEvent => !events.some(event => event.title === prevEvent.title));
+
+      // Update previous events state
+      setPreviousEvents(events);
+
+      // Handle new events
+      for (const event of newEvents) {
+        try {
+          await fetch('http://localhost:5000/calendar', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userID: userID,
+              activityType: 'Other',
+              activityName: event.title,
+              startDate: event.startDate,
+              endDate: event.endDate,
+            }),
+          });
+        } catch (err) {
+          console.error('Error sending new event to server:', err);
+        }
+      }
+
+      // Handle deleted events
+      for (const event of deletedEvents) {
+        try {
+          console.log('Deleting event:', event.title); // Add logging here to debug
+          await fetch('http://localhost:5000/calendar', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userID: userID,
+              activityName: event.title,
+            }),
+          });
+        } catch (err) {
+          console.error('Error deleting event from server:', err);
+        }
+      }
+
+      // Update the events state for UI
+      setEvents(events.slice(0, 2));
+    } else {
+      Alert.alert('No calendars found');
+    }
+  };
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchAndUpdateEvents();
+    }, 5000); // 5000 milliseconds = 5 seconds
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, [previousEvents, userID]);
 
   return (
     <>

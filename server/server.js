@@ -119,6 +119,24 @@ app.post('/users', async (req, res) => {
   }
 });
 
+app.delete('/calendar', async (req, res) => {
+  try {
+    const { userID, activityName } = req.body;
+    console.log('Received delete request for event:', activityName, 'for user:', userID);
+    const result = await Calendar.deleteOne({ userID, activityName });
+    console.log('Delete result:', result);
+    if (result.deletedCount === 1) {
+      res.status(200).send('Calendar event deleted successfully');
+    } else {
+      res.status(404).send('Calendar event not found');
+    }
+  } catch (err) {
+    console.error('Error deleting calendar event:', err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+
 
 
 
