@@ -78,18 +78,20 @@ app.get('/comms/:userID', async (req, res) => {
 
 app.post('/calendar', async (req, res) => {
   try {
-    const { userID, activityType, startDate, endDate, activityName } = req.body;
-    const existingEvent = await Calendar.findOne({ userID, activityName });
+    const { userID, eventId, activityType, startDate, endDate, activityName } = req.body;
+    const existingEvent = await Calendar.findOne({ userID, eventId });
 
     if (existingEvent) {
       existingEvent.activityType = activityType;
       existingEvent.startDate = startDate;
       existingEvent.endDate = endDate;
+      existingEvent.activityName = activityName;
       await existingEvent.save();
       res.status(200).send('Calendar event updated successfully');
     } else {
       const newCalendarEvent = new Calendar({
         userID,
+        eventId,
         activityType,
         activityName,
         startDate,

@@ -78,6 +78,10 @@ const CalendarSchema = new Schema({
     required: true,
     ref: 'User' // Assuming you have a User model
   },
+  eventId: {
+    type: String,
+    required: true
+  },
   activityName: {
     type: String,
     required: true

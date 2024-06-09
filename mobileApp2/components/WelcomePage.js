@@ -157,11 +157,15 @@ export default function WelcomePage({ navigation, route }) {
     const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
     if (calendars.length > 0) {
       const calendarId = calendars[0].id;
-      const events = await Calendar.getEventsAsync([calendarId], new Date(), new Date(new Date().setDate(new Date().getDate() + 30)));
-      setEvents(events.slice(0, 2));
-      
+      const events = await Calendar.getEventsAsync(
+        [calendarId],
+        new Date(),
+        new Date(new Date().setDate(new Date().getDate() + 60))
+      );
+      setEvents(events);
+  
       // Send events to the server
-      events.slice(0, 2).forEach(async (event) => {
+      events.forEach(async (event) => {
         try {
           await fetch('http://localhost:5000/calendar', {
             method: 'POST',
@@ -170,6 +174,7 @@ export default function WelcomePage({ navigation, route }) {
             },
             body: JSON.stringify({
               userID: userID,
+              eventId: event.id, // Include eventId here
               activityType: 'Other',
               activityName: event.title,
               startDate: event.startDate,
@@ -184,7 +189,7 @@ export default function WelcomePage({ navigation, route }) {
       Alert.alert('No calendars found');
     }
   };
-
+  
   const fetchAndUpdateEvents = async () => {
     const { status } = await Calendar.requestCalendarPermissionsAsync();
     if (status !== 'granted') {
@@ -245,7 +250,7 @@ export default function WelcomePage({ navigation, route }) {
       }
 
       // Update the events state for UI
-      setEvents(events.slice(0, 2));
+      setEvents(events);
     } else {
       Alert.alert('No calendars found');
     }
