@@ -1,3 +1,4 @@
+//ibm-ai-pet/mobileApp2/components/LoginForm.js
 import React, { useState, useCallback } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -15,12 +16,12 @@ export default function LoginForm({ navigation }) {
         },
       });
       const users = await response.json();
-      
+
       // Check if the username and password match any user in the database
       const user = users.find(user => user.username === username && user.password === password);
 
       if (user) {
-        navigation.navigate('Welcome');
+        navigation.navigate('Welcome', { userID: user._id });
       } else {
         Alert.alert('Invalid Credentials', 'Please enter the correct username and password.');
       }

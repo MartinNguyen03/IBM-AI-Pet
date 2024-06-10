@@ -1,3 +1,4 @@
+//ibm-ai-pet/server/server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -41,38 +42,104 @@ app.get('/users', async (req, res) => {
 app.post('/comms', async (req, res) => {
   try {
     const { userID, recipientName, recipientPhoneNumber } = req.body;
-    const newComms = new Comms({
-      userID,
-      recipientName,
-      recipientPhoneNumber,
-      timestamp: Date.now(),
-    });
-    await newComms.save();
-    res.status(201).send('Comms saved successfully');
+    const existingContact = await Comms.findOne({ userID, recipientName });
+
+    if (existingContact) {
+      existingContact.recipientPhoneNumber = recipientPhoneNumber;
+      await existingContact.save();
+      res.status(200).send('Comms updated successfully');
+    } else {
+      const newComms = new Comms({
+        userID,
+        recipientName,
+        recipientPhoneNumber,
+        timestamp: Date.now(),
+      });
+      await newComms.save();
+      res.status(201).send('Comms saved successfully');
+    }
   } catch (err) {
     console.error('Error saving comms:', err.message);
     res.status(500).send('Server Error');
   }
 });
 
+app.get('/comms/:userID', async (req, res) => {
+  try {
+    const { userID } = req.params;
+    const contacts = await Comms.find({ userID });
+    res.status(200).json(contacts);
+  } catch (err) {
+    console.error('Error fetching contacts:', err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+
 app.post('/calendar', async (req, res) => {
   try {
-    const { userID, activityType, startDate, endDate, activityName } = req.body;
-    const newCalendarEvent = new Calendar({
-      userID,
-      activityType,
-      activityName,
-      startDate: startDate,
-      endDate: endDate
-      
-    });
-    await newCalendarEvent.save();
-    res.status(201).send('Calendar event saved successfully');
+    const { userID, eventId, activityType, startDate, endDate, activityName } = req.body;
+    const existingEvent = await Calendar.findOne({ userID, eventId });
+
+    if (existingEvent) {
+      existingEvent.activityType = activityType;
+      existingEvent.startDate = startDate;
+      existingEvent.endDate = endDate;
+      existingEvent.activityName = activityName;
+      await existingEvent.save();
+      res.status(200).send('Calendar event updated successfully');
+    } else {
+      const newCalendarEvent = new Calendar({
+        userID,
+        eventId,
+        activityType,
+        activityName,
+        startDate,
+        endDate
+      });
+      await newCalendarEvent.save();
+      res.status(201).send('Calendar event saved successfully');
+    }
   } catch (err) {
     console.error('Error saving calendar event:', err.message);
     res.status(500).send('Server Error');
   }
 });
+
+
+app.post('/users', async (req, res) => {
+  try {
+    const { userID, latitude, longitude } = req.body;
+    await User.findByIdAndUpdate(userID, {
+      location_latitude: latitude,
+      location_longitude: longitude,
+    });
+    res.status(200).send('Location updated successfully');
+  } catch (err) {
+    console.error('Error updating location:', err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+app.delete('/calendar', async (req, res) => {
+  try {
+    const { userID, activityName } = req.body;
+    console.log('Received delete request for event:', activityName, 'for user:', userID);
+    const result = await Calendar.deleteOne({ userID, activityName });
+    console.log('Delete result:', result);
+    if (result.deletedCount === 1) {
+      res.status(200).send('Calendar event deleted successfully');
+    } else {
+      res.status(404).send('Calendar event not found');
+    }
+  } catch (err) {
+    console.error('Error deleting calendar event:', err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+
+
 
 
 const PORT = process.env.PORT || 5000;

@@ -1,15 +1,65 @@
-import React, { useState } from 'react';
+//ibm-ai-pet/mobileApp2/components/WelcomePage.js
+import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, Alert } from 'react-native';
 import * as Location from 'expo-location';
 import * as Contacts from 'expo-contacts';
 import * as Calendar from 'expo-calendar';
 import BlankPage from './BlankPage';
 
-export default function WelcomePage({ navigation }) {
+export default function WelcomePage({ navigation, route }) {
+  const { userID } = route.params;
   const [showBlankPage, setShowBlankPage] = useState(false);
   const [location, setLocation] = useState(null);
   const [contacts, setContacts] = useState([]);
   const [events, setEvents] = useState([]);
+  const [previousEvents, setPreviousEvents] = useState([]);
+
+  const fetchContactsFromServer = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/comms/${userID}`);
+      const serverContacts = await response.json();
+
+      const { data: deviceContacts } = await Contacts.getContactsAsync({
+        fields: [Contacts.Fields.PhoneNumbers],
+      });
+
+      const newContacts = serverContacts.filter(serverContact =>
+        !deviceContacts.some(deviceContact =>
+          deviceContact.name === serverContact.recipientName 
+          
+        )
+      );
+
+      if (newContacts.length > 0) {
+        for (const contact of newContacts) {
+          const contactData = {
+            [Contacts.Fields.FirstName]: contact.recipientName,
+            [Contacts.Fields.PhoneNumbers]: [{ number: contact.recipientPhoneNumber }],
+          };
+
+          // Add the console log here to debug
+          console.log('Adding contact:', contactData);
+
+          await Contacts.addContactAsync(contactData);
+        }
+        Alert.alert('New contacts have been added to your device.');
+      }
+    } catch (error) {
+      console.error('Error fetching contacts from server:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchContactsFromServer();
+  }, [userID]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchContactsFromServer();
+    }, 3000); // 3000 milliseconds = 3 seconds
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, [userID]);
 
   const handleLogout = () => {
     Alert.alert('Logout', 'You have been logged out.');
@@ -30,9 +80,25 @@ export default function WelcomePage({ navigation }) {
       Alert.alert('Permission to access location was denied');
       return;
     }
-
+  
     let loc = await Location.getCurrentPositionAsync({});
     setLocation(loc.coords);
+  
+    try {
+      await fetch('http://localhost:5000/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userID: userID,
+          latitude: loc.coords.latitude,
+          longitude: loc.coords.longitude,
+        }),
+      });
+    } catch (err) {
+      console.error('Error sending location to server:', err);
+    }
   };
 
   const handleGetContacts = async () => {
@@ -47,9 +113,9 @@ export default function WelcomePage({ navigation }) {
     });
 
     if (data.length > 0) {
-      setContacts(data.slice(0, 2));
-      // Send contacts to server
-      data.slice(0, 2).forEach(async (contact) => {
+      setContacts(data);
+      // Send all contacts to the server
+      data.forEach(async (contact) => {
         if (contact.phoneNumbers && contact.phoneNumbers.length > 0) {
           try {
             await fetch('http://localhost:5000/comms', {
@@ -58,7 +124,7 @@ export default function WelcomePage({ navigation }) {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                userID: '664b59ac96a2d9ddb3ad1986', // Replace with actual userID
+                userID: userID,
                 recipientName: contact.name,
                 recipientPhoneNumber: contact.phoneNumbers[0].number,
               }),
@@ -73,6 +139,14 @@ export default function WelcomePage({ navigation }) {
     }
   };
 
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      handleGetContacts();
+    }, 3000); // 3000 milliseconds = 3 seconds
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, []);
+
   const handleGetEvents = async () => {
     const { status } = await Calendar.requestCalendarPermissionsAsync();
     if (status !== 'granted') {
@@ -83,11 +157,15 @@ export default function WelcomePage({ navigation }) {
     const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
     if (calendars.length > 0) {
       const calendarId = calendars[0].id;
-      const events = await Calendar.getEventsAsync([calendarId], new Date(), new Date(new Date().setDate(new Date().getDate() + 30)));
-      setEvents(events.slice(0, 2));
-      
+      const events = await Calendar.getEventsAsync(
+        [calendarId],
+        new Date(),
+        new Date(new Date().setDate(new Date().getDate() + 60))
+      );
+      setEvents(events);
+  
       // Send events to the server
-      events.slice(0, 2).forEach(async (event) => {
+      events.forEach(async (event) => {
         try {
           await fetch('http://localhost:5000/calendar', {
             method: 'POST',
@@ -95,8 +173,9 @@ export default function WelcomePage({ navigation }) {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              userID: '664b59ac96a2d9ddb3ad1986', // Replace with actual userID
-              activityType: 'Other', // Assuming 'Event' is a valid type, adjust as needed
+              userID: userID,
+              eventId: event.id, // Include eventId here
+              activityType: 'Other',
               activityName: event.title,
               startDate: event.startDate,
               endDate: event.endDate,
@@ -110,6 +189,80 @@ export default function WelcomePage({ navigation }) {
       Alert.alert('No calendars found');
     }
   };
+  
+  const fetchAndUpdateEvents = async () => {
+    const { status } = await Calendar.requestCalendarPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission to access calendar was denied');
+      return;
+    }
+
+    const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+    if (calendars.length > 0) {
+      const calendarId = calendars[0].id;
+      const events = await Calendar.getEventsAsync([calendarId], new Date(), new Date(new Date().setDate(new Date().getDate() + 30)));
+      
+      // Compare with previous events
+      const newEvents = events.filter(event => !previousEvents.some(prevEvent => prevEvent.title === event.title));
+      const deletedEvents = previousEvents.filter(prevEvent => !events.some(event => event.title === prevEvent.title));
+
+      // Update previous events state
+      setPreviousEvents(events);
+
+      // Handle new events
+      for (const event of newEvents) {
+        try {
+          await fetch('http://localhost:5000/calendar', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userID: userID,
+              activityType: 'Other',
+              activityName: event.title,
+              startDate: event.startDate,
+              endDate: event.endDate,
+            }),
+          });
+        } catch (err) {
+          console.error('Error sending new event to server:', err);
+        }
+      }
+
+      // Handle deleted events
+      for (const event of deletedEvents) {
+        try {
+          console.log('Deleting event:', event.title); // Add logging here to debug
+          await fetch('http://localhost:5000/calendar', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userID: userID,
+              activityName: event.title,
+            }),
+          });
+        } catch (err) {
+          console.error('Error deleting event from server:', err);
+        }
+      }
+
+      // Update the events state for UI
+      setEvents(events);
+    } else {
+      Alert.alert('No calendars found');
+    }
+  };
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchAndUpdateEvents();
+    }, 5000); // 5000 milliseconds = 5 seconds
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, [previousEvents, userID]);
 
   return (
     <>
