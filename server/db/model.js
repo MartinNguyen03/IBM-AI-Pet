@@ -22,11 +22,11 @@ const UserSchema = new Schema({
     type: String,
     required: false
   },
-  location_latitude: {
+  locLatitude: {
     type: Number,
     required: false
   },
-  location_longitude: {
+  locLongitude: {
     type: Number,
     required: false
   },
@@ -78,10 +78,10 @@ const CalendarSchema = new Schema({
     required: true,
     ref: 'User' // Assuming you have a User model
   },
-  eventId: {
-    type: String,
-    required: true
-  },
+  // eventId: {
+  //   type: String,
+  //   required: true
+  // },
   activityName: {
     type: String,
     required: true

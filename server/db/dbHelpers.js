@@ -3,7 +3,7 @@ const { User, Trait, Chat, Comms, History, Podcast, Calendar, Exercise, Meal } =
 const models = [User, Trait, Chat, Comms, History, Podcast, Calendar, Exercise, Meal];
 
 /* ------------------- ADD FUNCTIONS ------------------- */
-async function addHistory(userID, activityType) {
+async function addHistory(userID, activityType, traitType) {
     User.findById(userID , (err, user) => {
         if (err) {
           console.log(err);
@@ -28,12 +28,14 @@ async function addHistory(userID, activityType) {
       });
     }
 
-async function addUser(username, password, name, phonenumber) {
+async function addUser(username, password, name, phoneNumber, longitude, latitude) {
   const newUser = new User({
     username: username,
     password: password,
     name: name,
-    phonenumber: phonenumber,
+    phoneNumber: phoneNumber,
+    locLongitude: longitude,
+    locLatitude: latitude,
   });
 
   await newUser.save((err) => {
@@ -46,15 +48,17 @@ async function addUser(username, password, name, phonenumber) {
   addHistory(newUser._id, 'User Created');
 }
 
-async function addCalendar(userID, activityType, date) {
+async function addCalendar(userID, activityName, activityType, startDate, endDate) {
     User.findById(userID , (err, user) => {
         if (err) {
           console.log(err);
         } else if (user) {
             const newCalendar = new Calendar({
                 userID: userID,
+                activityName: activityName,
                 activityType: activityType,
-                date: date,
+                startDate: startDate,
+                endDate: endDate,
             });
              newCalendar.save((err) => {
                 if (err) {

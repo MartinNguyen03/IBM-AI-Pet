@@ -6,6 +6,8 @@ const { IamAuthenticator } = require('ibm-watson/auth');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./db/db.js');
+const dbHelpers = require('./db/dbHelpers.js');
+
 dotenv.config();
 
 const app = express();
@@ -25,6 +27,12 @@ const assistant = new AssistantV2({
 });
 
 const { User, Trait, Chat, Comms, History, Podcast, Calendar, Exercise, Meal } = require('./db/model.js');
+
+app.post('/history', (req, res) => {
+  const { userID, activityType, traitType } = req.body;
+  dbHelpers.addHistory(userID, activityType, traitType);
+  res.send('History added');
+});
 
 app.get('/users', async (req, res) => {
   try {
@@ -109,8 +117,8 @@ app.post('/users', async (req, res) => {
   try {
     const { userID, latitude, longitude } = req.body;
     await User.findByIdAndUpdate(userID, {
-      location_latitude: latitude,
-      location_longitude: longitude,
+      locLatitude: latitude,
+      locLongitude: longitude,
     });
     res.status(200).send('Location updated successfully');
   } catch (err) {
