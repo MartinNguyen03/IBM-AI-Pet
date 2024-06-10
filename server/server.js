@@ -1,6 +1,8 @@
 //ibm-ai-pet/server/server.js
 const express = require('express');
 const mongoose = require('mongoose');
+const AssistantV2 = require('ibm-watson/assistant/v2');
+const { IamAuthenticator } = require('ibm-watson/auth');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./db/db.js');
@@ -10,23 +12,19 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// const connectDB = async () => {
-//   try {
-//     await mongoose.connect(process.env.MONGO_URI, {
-//       useNewUrlParser: true,
-//       useUnifiedTopology: true,
-//     });
-//     console.log('MongoDB connected...');
-//   } catch (err) {
-//     console.log('MongoDB connection failed...');
-//     console.error(err.message);
-//     process.exit(1);
-//   }
-// };
 
 connectDB();
 
-const { User, Comms, Calendar } = require('./db/model.js');
+// connect to Watson Assistant
+const assistant = new AssistantV2({
+  version: '2023-06-15',
+  authenticator: new IamAuthenticator({
+    apikey: process.env.WATSON_ASSISTANT_APIKEY,
+  }),
+  serviceUrl: process.env.WATSON_ASSISTANT_TTS_URL,
+});
+
+const { User, Trait, Chat, Comms, History, Podcast, Calendar, Exercise, Meal } = require('./db/model.js');
 
 app.get('/users', async (req, res) => {
   try {
