@@ -1,63 +1,36 @@
-const fs = require('fs');
-const path = require('path');
-const SpeechToTextV1 = require('ibm-watson/speech-to-text/v1');
+const TextToSpeechV1 = require('ibm-watson/text-to-speech/v1');
 const { IamAuthenticator } = require('ibm-watson/auth');
-const { RecognizeStream } = require('ibm-watson/speech-to-text/v1');
 
+// Set up the authenticator with your API key
 const authenticator = new IamAuthenticator({
-  apikey: 'sTl8Wcr4D5mdHLXITnGPid8I23Tm3TprXbaWtLY5bIKL'
+  apikey: 'M3wUUJKQxq_LJ_vDEfvUhDZewwyJyFqoO1STfdqk9SAF',
 });
 
-const speechToText = new SpeechToTextV1({
+// Create a new Text to Speech service instance
+const textToSpeech = new TextToSpeechV1({
   authenticator: authenticator,
-  serviceUrl: 'https://api.au-syd.speech-to-text.watson.cloud.ibm.com/instances/ab814a16-5b7a-45b7-ba8a-6d550a43f670',
+  serviceUrl: 'https://api.au-syd.text-to-speech.watson.cloud.ibm.com/instances/0ca23754-b89a-4029-85cc-0131bae73271',
   disableSslVerification: true,
 });
 
-// Define the output file path
-const outputFile = path.join(__dirname, 'transcribed_text.json');
+// Set the parameters for the synthesis
+const synthesizeParams = {
+  text: 'Hello, this is a test of the text to speech service',
+  accept: 'audio/wav',
+  voice: 'en-US_AllisonV3Voice',
+};
 
-// Define the callback class
-class MyRecognizeCallback {
-  constructor(outputFile) {
-    this.outputFile = outputFile;
-  }
-
-  onData(event) {
-    if (event.results) {
-      fs.appendFileSync(this.outputFile, JSON.stringify(event.results, null, 2) + '\n');
-    }
-  }
-
-  onError(error) {
-    console.error('Error received:', error);
-  }
-
-  onInactivityTimeout(error) {
-    console.error('Inactivity timeout:', error);
-  }
-}
-
-// Instantiate the callback class
-const myRecognizeCallback = new MyRecognizeCallback(outputFile);
-
-// Provide the path to your audio file
-const audioFilePath = path.join(__dirname, 'hello_world.wav');
-
-// Create the recognize stream
-const recognizeStream = speechToText.recognizeUsingWebSocket({
-  contentType: 'audio/wav',
-  model: 'en-US_BroadbandModel',
-  keywords: ['colorado', 'tornado', 'tornadoes'],
-  keywordsThreshold: 0.5,
-  maxAlternatives: 3
-});
-
-// Pipe the audio file to the recognize stream
-fs.createReadStream(audioFilePath).pipe(recognizeStream);
-
-// Set up event listeners
-recognizeStream.on('data', (event) => myRecognizeCallback.onData(event));
-recognizeStream.on('error', (error) => myRecognizeCallback.onError(error));
-recognizeStream.on('close', () => console.log('Transcription completed'));
-recognizeStream.on('inactivity_timeout', (error) => myRecognizeCallback.onInactivityTimeout(error));
+// Perform the synthesis and write the audio to a file
+textToSpeech.synthesize(synthesizeParams)
+  .then(response => {
+    const audio = response.result;
+    return textToSpeech.repairWavHeaderStream(audio);
+  })
+  .then(buffer => {
+    const fs = require('fs');
+    fs.writeFileSync('hello_world.wav', buffer);
+    console.log('Audio written to hello_world.wav');
+  })
+  .catch(err => {
+    console.log('Error:', err);
+  });
