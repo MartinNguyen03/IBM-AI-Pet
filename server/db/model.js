@@ -22,7 +22,7 @@ const UserSchema = new Schema({
     type: String,
     required: false
   },
-  locLatitude: {
+  locLatitude: { //location_latitude
     type: Number,
     required: false
   },

@@ -127,16 +127,16 @@ async function addComms(userID, recipientNumber, recipientName) {
     });    
     }
 
-async function addExercise(userID, ExerciseName, ExerciseDescription, ExerciseTrait) {
+async function addExercise(userID, exerciseName, exerciseDescription, exerciseTrait) {
     User.findById(userID , (err, user) => {
         if (err) {
           console.log(err);
         } else if (user) {
             const newExercise = new Exercise({
                 userID: userID,
-                ExerciseName: ExerciseName,
-                ExerciseDescription: ExerciseDescription,
-                ExerciseTrait: ExerciseTrait,
+                ExerciseName: exerciseName,
+                ExerciseDescription: exerciseDescription,
+                ExerciseTrait: exerciseTrait,
                 dateSuggested: Date.now(),
             });
 
