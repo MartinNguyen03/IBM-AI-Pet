@@ -144,7 +144,40 @@ app.delete('/calendar', async (req, res) => {
   }
 });
 
+app.post('/trait', async (req, res) => {
+  try {
+    const { userID, traitType } = req.body;
+    const existingTrait = await Trait.findOne({ userID, traitType });
 
+    if (existingTrait) {
+      existingTrait.traitType = traitType;
+      await existingTrait.save();
+      res.status(200).send('Trait updated successfully');
+    } else {
+      const newTrait = new Trait({
+        userID,
+        traitType: traitType,
+        traitDesirability: 0.5,
+        });
+      await newTrait.save();
+      res.status(201).send('Trait saved successfully');
+    }
+  } catch (err) {
+    console.error('Error saving trait:', err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+app.get('/trait/:userID', async (req, res) => {
+  try {
+    const { userID } = req.params;
+    const traits = await Trait.find({ userID });
+    res.status(200).json(traits);
+  } catch (err) {
+    console.error('Error fetching traits:', err.message);
+    res.status(500).send('Server Error');
+  }
+});
 
 
 
