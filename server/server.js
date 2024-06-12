@@ -1,5 +1,6 @@
 //ibm-ai-pet/server/server.js
 const express = require('express');
+const axios = require('axios');
 const mongoose = require('mongoose');
 const AssistantV2 = require('ibm-watson/assistant/v2');
 const { IamAuthenticator } = require('ibm-watson/auth');
@@ -24,14 +25,40 @@ const assistant = new AssistantV2({
     apikey: process.env.WATSON_ASSISTANT_APIKEY,
   }),
   serviceUrl: process.env.WATSON_ASSISTANT_TTS_URL,
+  assistantId: process.env.WATSON_ASSISTANT_ID,
 });
 
 const { User, Trait, Chat, Comms, History, Podcast, Calendar, Exercise, Meal } = require('./db/model.js');
 
-app.post('/history', (req, res) => {
+app.post('/history', async (req, res) => {
   const { userID, activityType, traitType } = req.body;
-  dbHelpers.addHistory(userID, activityType, traitType);
-  res.send('History added');
+
+  try {
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': activityType // assuming activityType is the message
+      }
+    });
+
+    // Extract operation from Watson Assistant response
+    const operation = watsonResponse.result.context.operation;
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/history?operation=${operation}`);
+
+    // Add history to MongoDB database
+    dbHelpers.addHistory(userID, activityType, traitType);
+
+    // Send API response back to client
+    res.json(apiResponse.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
+  }
 });
 
 app.get('/users', async (req, res) => {
