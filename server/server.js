@@ -49,6 +49,7 @@ app.post('/comms', async (req, res) => {
   try {
     const { userID, recipientName, recipientPhoneNumber } = req.body;
     const existingContact = await Comms.findOne({ userID, recipientName });
+    dbHelpers.addComms(userID, recipientPhoneNumber, recipientName);
 
     if (existingContact) {
       existingContact.recipientPhoneNumber = recipientPhoneNumber;
