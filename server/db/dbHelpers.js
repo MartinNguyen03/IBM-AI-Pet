@@ -82,7 +82,7 @@ async function addChat(userID, chatTrait) {
             const newChat = new Chat({
                 userID: userID,
                 chatTrait: chatTrait,
-                dateSuggested: Date.now(),
+                timestamp: Date.now(), // dateSuggested
             });
 
              newChat.save((err) => {
@@ -100,16 +100,16 @@ async function addChat(userID, chatTrait) {
         });
     }
 
-async function addComms(userID, recipientNumber, recipientName) {
+async function addComms(userID, recipientPhoneNumber, recipientName) {
     User.findById(userID , (err, user) => {
         if (err) {
           console.log(err);
         } else if (user) {
             const newComms = new Comms({
                 userID: userID,
-                recipientNumber: recipientNumber,
+                recipientPhoneNumber: recipientPhoneNumber,
                 recipientName: recipientName,
-                dateSuggested: Date.now(),
+                timestamp: Date.now(), //dateSuggested
             });
 
              newComms.save((err) => {
@@ -134,10 +134,10 @@ async function addExercise(userID, exerciseName, exerciseDescription, exerciseTr
         } else if (user) {
             const newExercise = new Exercise({
                 userID: userID,
-                ExerciseName: exerciseName,
-                ExerciseDescription: exerciseDescription,
-                ExerciseTrait: exerciseTrait,
-                dateSuggested: Date.now(),
+                exerciseName: exerciseName,
+                exerciseDescription: exerciseDescription,
+                exerciseTrait: exerciseTrait,
+                // dateSuggested: Date.now(),
             });
 
              newExercise.save((err) => {
@@ -163,7 +163,7 @@ async function addMeal(userID, mealName, mealDescription, mealTrait) {
             const newMeal = new Meal({
                 userID: userID,
                 mealName: mealName,
-                mealDescription: mealDescription,
+                mealDescription: mealDescription, 
                 mealTrait: mealTrait,
                 dateSuggested: Date.now(),
             });
@@ -183,18 +183,18 @@ async function addMeal(userID, mealName, mealDescription, mealTrait) {
     });
     }
 
-async function addPodcast(userID, podcastName,podcastURL,podcastDescription,podcastTrait) {
+async function addPodcast(userID, title,podcastURL,podcastDescription,podcastTrait) {
     User.findById(userID , (err, user) => {
         if (err) {
           console.log(err);
         } else if (user) {
             const newPodcast = new Podcast({
                 userID: userID,
-                podcastName: podcastName,
-                podcastURL: podcastURL,
-                podcastDescription: podcastDescription,
+                title: title, // podcastName
+                podcastURL: podcastURL, 
+                podcastDescription: podcastDescription, 
                 podcastTrait: podcastTrait,
-                timestamp: Date.now(),
+                // timestamp: Date.now(),
             });
 
              newPodcast.save((err) => {
@@ -358,7 +358,7 @@ async function getHistory(userID) {
 * getExerciseTrait <userID> <traitType>
 */
 async function getExerciseTrait(userID, traitType) {
-  let exercises = await Exercise.find({ userID, ExerciseTrait: traitType });
+  let exercises = await Exercise.find({ userID, exerciseTrait: traitType });
   if (!exercises) {
       console.log('No exercise found');
       return;

@@ -166,11 +166,11 @@ const PodcastSchema = new Schema({
     type: String,
     required: true
   },
-  description: {
+  podcastDescription: {
     type: String,
     required: false
   },
-  URL: {
+  podcastURL: {
     type: String,
     required: true
   },
@@ -189,7 +189,7 @@ const MealSchema = new Schema({
     type: String,
     required: true
   },
-  description: {
+  mealDescription: {
     type: String,
     required: false
   },
