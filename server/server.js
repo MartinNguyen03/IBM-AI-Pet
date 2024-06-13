@@ -72,11 +72,55 @@ app.get('/users', async (req, res) => {
   }
 });
 
+// app.post('/comms', async (req, res) => {
+//   try {
+//     const { userID, recipientName, recipientPhoneNumber } = req.body;
+//     const existingContact = await Comms.findOne({ userID, recipientName });
+//     dbHelpers.addComms(userID, recipientPhoneNumber, recipientName);
+
+//     if (existingContact) {
+//       existingContact.recipientPhoneNumber = recipientPhoneNumber;
+//       await existingContact.save();
+//       res.status(200).send('Comms updated successfully');
+//     } else {
+//       const newComms = new Comms({
+//         userID,
+//         recipientName,
+//         recipientPhoneNumber,
+//         timestamp: Date.now(),
+//       });
+//       await newComms.save();
+//       res.status(201).send('Comms saved successfully');
+//     }
+//   } catch (err) {
+//     console.error('Error saving comms:', err.message);
+//     res.status(500).send('Server Error');
+//   }
+// });
+
 app.post('/comms', async (req, res) => {
+  const { userID, recipientName, recipientPhoneNumber } = req.body;
+  const existingContact = await Comms.findOne({ userID, recipientName });
+
   try {
-    const { userID, recipientName, recipientPhoneNumber } = req.body;
-    const existingContact = await Comms.findOne({ userID, recipientName });
-    dbHelpers.addComms(userID, recipientPhoneNumber, recipientName);
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': activityType // assuming activityType is the message
+      }
+    });
+
+    // Extract operation from Watson Assistant response
+    const operation = watsonResponse.result.context.operation;
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/history?operation=${operation}`);
+
+    // Add history to MongoDB database
+    dbHelpers.addComms(userID, recipientName, recipientPhoneNumber);
 
     if (existingContact) {
       existingContact.recipientPhoneNumber = recipientPhoneNumber;
@@ -92,9 +136,12 @@ app.post('/comms', async (req, res) => {
       await newComms.save();
       res.status(201).send('Comms saved successfully');
     }
-  } catch (err) {
-    console.error('Error saving comms:', err.message);
-    res.status(500).send('Server Error');
+
+    // Send API response back to client
+    res.json(apiResponse.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
   }
 });
 
@@ -173,23 +220,30 @@ app.delete('/calendar', async (req, res) => {
 });
 
 app.post('/trait', async (req, res) => {
-  try {
-    const { userID, traitType } = req.body;
-    const existingTrait = await Trait.findOne({ userID, traitType });
+  const { userID, traitType } = req.body;
 
-    if (existingTrait) {
-      existingTrait.traitType = traitType;
-      await existingTrait.save();
-      res.status(200).send('Trait updated successfully');
-    } else {
-      const newTrait = new Trait({
-        userID,
-        traitType: traitType,
-        traitDesirability: 0.5,
-        });
-      await newTrait.save();
-      res.status(201).send('Trait saved successfully');
-    }
+  try {
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': traitType // assuming traitType is the message
+      }
+    });
+
+    // Extract operation from Watson Assistant response
+    const operation = watsonResponse.result.context.operation;
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/trait?operation=${operation}`);
+
+    // Add chat to MongoDB database
+    dbHelpers.addTrait(userID, traitType);
+
+    // Send API response back to client
+    res.json(apiResponse.data);
   } catch (err) {
     console.error('Error saving trait:', err.message);
     res.status(500).send('Server Error');
@@ -207,7 +261,36 @@ app.get('/trait/:userID', async (req, res) => {
   }
 });
 
+app.post('/chat', async (req, res) => {
+  const { userID, chatTrait } = req.body;
 
+  try {
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': chatTrait // assuming chatTrait is the message
+      }
+    });
+
+    // Extract operation from Watson Assistant response
+    const operation = watsonResponse.result.context.operation;
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/chat?operation=${operation}`);
+
+    // Add chat to MongoDB database
+    dbHelpers.addChat(userID, chatTrait);
+
+    // Send API response back to client
+    res.json(apiResponse.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
+  }
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
