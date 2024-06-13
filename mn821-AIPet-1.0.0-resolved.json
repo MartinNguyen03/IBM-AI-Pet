@@ -1,0 +1,1098 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Watson CRM API",
+    "description": "API documentation for Watson CRM integration",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://virtserver.swaggerhub.com/mn821/AIPet/1.0.0",
+      "description": "SwaggerHub API for AIPet"
+    }
+  ],
+  "paths": {
+    "/user": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Get a user",
+        "parameters": [
+          {
+            "name": "userID",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving user"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Create a new user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "User created successfully"
+          },
+          "500": {
+            "description": "Error creating user"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Delete a user",
+        "parameters": [
+          {
+            "name": "userID",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deleted successfully"
+          },
+          "500": {
+            "description": "Error deleting user"
+          }
+        }
+      }
+    },
+    "/history": {
+      "get": {
+        "tags": [
+          "History"
+        ],
+        "summary": "Get history entries",
+        "parameters": [
+          {
+            "name": "userID",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "History retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/History"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving history"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "History"
+        ],
+        "summary": "Add a history entry",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/History"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "History created successfully"
+          },
+          "500": {
+            "description": "Error creating history"
+          }
+        }
+      }
+    },
+    "/calendar": {
+      "get": {
+        "tags": [
+          "Calendar"
+        ],
+        "summary": "Get calendar entries",
+        "parameters": [
+          {
+            "name": "userID",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Calendar entries retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Calendar"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving calendar entries"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Calendar"
+        ],
+        "summary": "Add a calendar entry",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Calendar"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Calendar entry created successfully"
+          },
+          "500": {
+            "description": "Error creating calendar entry"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Calendar"
+        ],
+        "summary": "Delete a calendar entry",
+        "parameters": [
+          {
+            "name": "userID",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "calendarID",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Calendar entry deleted successfully"
+          },
+          "500": {
+            "description": "Error deleting calendar entry"
+          }
+        }
+      }
+    },
+    "/calendar/today": {
+      "get": {
+        "tags": [
+          "Calendar"
+        ],
+        "summary": "Get today's calendar entries",
+        "parameters": [
+          {
+            "name": "userID",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Today's calendar entries retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Calendar"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving today's calendar entries"
+          }
+        }
+      }
+    },
+    "/calendar/{eventId}": {
+      "put": {
+        "tags": [
+          "Calendar"
+        ],
+        "summary": "Update a calendar entry",
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Calendar"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Calendar entry updated successfully"
+          },
+          "500": {
+            "description": "Error updating calendar entry"
+          }
+        }
+      }
+    },
+    "/chat": {
+      "get": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "Get chat entries",
+        "parameters": [
+          {
+            "name": "userID",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chat entries retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Chat"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving chat entries"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Chat"
+        ],
+        "summary": "Add a chat entry",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Chat"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Chat entry created successfully"
+          },
+          "500": {
+            "description": "Error creating chat entry"
+          }
+        }
+      }
+    },
+    "/comms": {
+      "get": {
+        "tags": [
+          "Comms"
+        ],
+        "summary": "Get comms entries",
+        "parameters": [
+          {
+            "name": "userID",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Comms entries retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Comms"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving comms entries"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Comms"
+        ],
+        "summary": "Add a comms entry",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Comms"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Comms entry created successfully"
+          },
+          "500": {
+            "description": "Error creating comms entry"
+          }
+        }
+      }
+    },
+    "/exercise": {
+      "get": {
+        "tags": [
+          "Exercise"
+        ],
+        "summary": "Get exercise entries",
+        "parameters": [
+          {
+            "name": "userID",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exercise entries retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Exercise"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving exercise entries"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Exercise"
+        ],
+        "summary": "Add an exercise entry",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Exercise"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Exercise entry created successfully"
+          },
+          "500": {
+            "description": "Error creating exercise entry"
+          }
+        }
+      }
+    },
+    "/exercise/trait/{traitType}": {
+      "get": {
+        "tags": [
+          "Exercise"
+        ],
+        "summary": "Get exercises for a given trait type",
+        "parameters": [
+          {
+            "name": "traitType",
+            "in": "path",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exercises retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Exercise"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving exercises"
+          }
+        }
+      }
+    },
+    "/meal": {
+      "get": {
+        "tags": [
+          "Meal"
+        ],
+        "summary": "Get meal entries",
+        "parameters": [
+          {
+            "name": "userID",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Meal entries retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Meal"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving meal entries"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Meal"
+        ],
+        "summary": "Add a meal entry",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Meal"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Meal entry created successfully"
+          },
+          "500": {
+            "description": "Error creating meal entry"
+          }
+        }
+      }
+    },
+    "/meal/trait/{traitType}": {
+      "get": {
+        "tags": [
+          "Meal"
+        ],
+        "summary": "Get meals for a given trait type",
+        "parameters": [
+          {
+            "name": "traitType",
+            "in": "path",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Meals retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Meal"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving meals"
+          }
+        }
+      }
+    },
+    "/podcast": {
+      "get": {
+        "tags": [
+          "Podcast"
+        ],
+        "summary": "Get podcast entries",
+        "parameters": [
+          {
+            "name": "userID",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Podcast entries retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Podcast"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving podcast entries"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Podcast"
+        ],
+        "summary": "Add a podcast entry",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Podcast"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Podcast entry created successfully"
+          },
+          "500": {
+            "description": "Error creating podcast entry"
+          }
+        }
+      }
+    },
+    "/podcast/trait/{traitType}": {
+      "get": {
+        "tags": [
+          "Podcast"
+        ],
+        "summary": "Get podcasts for a given trait type",
+        "parameters": [
+          {
+            "name": "traitType",
+            "in": "path",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Podcasts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Podcast"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving podcasts"
+          }
+        }
+      }
+    },
+    "/trait": {
+      "get": {
+        "tags": [
+          "Trait"
+        ],
+        "summary": "Get traits",
+        "parameters": [
+          {
+            "name": "userID",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Traits retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Trait"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving traits"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Trait"
+        ],
+        "summary": "Add a trait entry",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Trait"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Trait entry created successfully"
+          },
+          "500": {
+            "description": "Error creating trait entry"
+          }
+        }
+      }
+    },
+    "/trait/desirability": {
+      "get": {
+        "tags": [
+          "Trait"
+        ],
+        "summary": "Get trait desirability",
+        "parameters": [
+          {
+            "name": "userID",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "traitType",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Trait desirability retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Trait"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error retrieving trait desirability"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Trait"
+        ],
+        "summary": "Update trait desirability",
+        "parameters": [
+          {
+            "name": "userID",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "traitID",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "operation",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "+",
+                "-"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Trait desirability updated successfully"
+          },
+          "500": {
+            "description": "Error updating trait desirability"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "longitude": {
+            "type": "number"
+          },
+          "latitude": {
+            "type": "number"
+          }
+        }
+      },
+      "History": {
+        "type": "object",
+        "properties": {
+          "userID": {
+            "type": "string"
+          },
+          "activityType": {
+            "type": "string"
+          },
+          "traitType": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Calendar": {
+        "type": "object",
+        "properties": {
+          "userID": {
+            "type": "string"
+          },
+          "activityName": {
+            "type": "string"
+          },
+          "activityType": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Chat": {
+        "type": "object",
+        "properties": {
+          "userID": {
+            "type": "string"
+          },
+          "chatTrait": {
+            "type": "string"
+          },
+          "dateSuggested": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Comms": {
+        "type": "object",
+        "properties": {
+          "userID": {
+            "type": "string"
+          },
+          "recipientNumber": {
+            "type": "string"
+          },
+          "recipientName": {
+            "type": "string"
+          },
+          "dateSuggested": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Exercise": {
+        "type": "object",
+        "properties": {
+          "userID": {
+            "type": "string"
+          },
+          "exerciseName": {
+            "type": "string"
+          },
+          "exerciseDescription": {
+            "type": "string"
+          },
+          "exerciseTrait": {
+            "type": "string"
+          },
+          "dateSuggested": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Meal": {
+        "type": "object",
+        "properties": {
+          "userID": {
+            "type": "string"
+          },
+          "mealName": {
+            "type": "string"
+          },
+          "mealDescription": {
+            "type": "string"
+          },
+          "mealTrait": {
+            "type": "string"
+          },
+          "dateSuggested": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Podcast": {
+        "type": "object",
+        "properties": {
+          "userID": {
+            "type": "string"
+          },
+          "podcastName": {
+            "type": "string"
+          },
+          "podcastURL": {
+            "type": "string"
+          },
+          "podcastDescription": {
+            "type": "string"
+          },
+          "podcastTrait": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Trait": {
+        "type": "object",
+        "properties": {
+          "userID": {
+            "type": "string"
+          },
+          "traitType": {
+            "type": "string"
+          },
+          "traitDesirability": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  }
+}

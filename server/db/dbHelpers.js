@@ -137,7 +137,6 @@ async function addExercise(userID, exerciseName, exerciseDescription, exerciseTr
                 exerciseName: exerciseName,
                 exerciseDescription: exerciseDescription,
                 exerciseTrait: exerciseTrait,
-                // dateSuggested: Date.now(),
             });
 
              newExercise.save((err) => {
@@ -194,7 +193,6 @@ async function addPodcast(userID, title,podcastURL,podcastDescription,podcastTra
                 podcastURL: podcastURL, 
                 podcastDescription: podcastDescription, 
                 podcastTrait: podcastTrait,
-                // timestamp: Date.now(),
             });
 
              newPodcast.save((err) => {
