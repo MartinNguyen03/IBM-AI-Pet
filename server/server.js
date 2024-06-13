@@ -30,6 +30,8 @@ const assistant = new AssistantV2({
 
 const { User, Trait, Chat, Comms, History, Podcast, Calendar, Exercise, Meal } = require('./db/model.js');
 
+// ---------------------- History -----------------------------
+
 app.post('/history', async (req, res) => {
   const { userID, activityType, traitType } = req.body;
 
@@ -61,6 +63,8 @@ app.post('/history', async (req, res) => {
   }
 });
 
+// ---------------------- Users -----------------------------
+
 app.get('/users', async (req, res) => {
   try {
     const users = await User.find();
@@ -72,11 +76,71 @@ app.get('/users', async (req, res) => {
   }
 });
 
-app.post('/comms', async (req, res) => {
+app.post('/users', async (req, res) => {
   try {
-    const { userID, recipientName, recipientPhoneNumber } = req.body;
-    const existingContact = await Comms.findOne({ userID, recipientName });
-    dbHelpers.addComms(userID, recipientPhoneNumber, recipientName);
+    const { userID, latitude, longitude } = req.body;
+    await User.findByIdAndUpdate(userID, {
+      locLatitude: latitude,
+      locLongitude: longitude,
+    });
+    res.status(200).send('Location updated successfully');
+  } catch (err) {
+    console.error('Error updating location:', err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// ---------------------- Comms -----------------------------
+
+// app.post('/comms', async (req, res) => {
+//   try {
+//     const { userID, recipientName, recipientPhoneNumber } = req.body;
+//     const existingContact = await Comms.findOne({ userID, recipientName });
+//     dbHelpers.addComms(userID, recipientPhoneNumber, recipientName);
+
+//     if (existingContact) {
+//       existingContact.recipientPhoneNumber = recipientPhoneNumber;
+//       await existingContact.save();
+//       res.status(200).send('Comms updated successfully');
+//     } else {
+//       const newComms = new Comms({
+//         userID,
+//         recipientName,
+//         recipientPhoneNumber,
+//         timestamp: Date.now(),
+//       });
+//       await newComms.save();
+//       res.status(201).send('Comms saved successfully');
+//     }
+//   } catch (err) {
+//     console.error('Error saving comms:', err.message);
+//     res.status(500).send('Server Error');
+//   }
+// });
+
+app.post('/comms', async (req, res) => {
+  const { userID, recipientName, recipientPhoneNumber } = req.body;
+  const existingContact = await Comms.findOne({ userID, recipientName });
+
+  try {
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': activityType // assuming activityType is the message
+      }
+    });
+
+    // Extract operation from Watson Assistant response
+    const operation = watsonResponse.result.context.operation;
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/history?operation=${operation}`);
+
+    // Add comms to MongoDB database
+    dbHelpers.addComms(userID, recipientName, recipientPhoneNumber);
 
     if (existingContact) {
       existingContact.recipientPhoneNumber = recipientPhoneNumber;
@@ -92,9 +156,12 @@ app.post('/comms', async (req, res) => {
       await newComms.save();
       res.status(201).send('Comms saved successfully');
     }
-  } catch (err) {
-    console.error('Error saving comms:', err.message);
-    res.status(500).send('Server Error');
+
+    // Send API response back to client
+    res.json(apiResponse.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
   }
 });
 
@@ -109,11 +176,31 @@ app.get('/comms/:userID', async (req, res) => {
   }
 });
 
+// ---------------------- Calendar -----------------------------
 
 app.post('/calendar', async (req, res) => {
+  const { userID, eventId, activityType, startDate, endDate, activityName } = req.body;
+  const existingEvent = await Calendar.findOne({ userID, eventId });
+
   try {
-    const { userID, eventId, activityType, startDate, endDate, activityName } = req.body;
-    const existingEvent = await Calendar.findOne({ userID, eventId });
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': activityType // assuming activityType is the message
+      }
+    });
+
+    // Extract operation from Watson Assistant response
+    const operation = watsonResponse.result.context.operation;
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/calendar?operation=${operation}`);
+
+    // Add comms to MongoDB database
+    dbHelpers.addCalendar(userID, eventId, activityType, startDate, endDate, activityName);
 
     if (existingEvent) {
       existingEvent.activityType = activityType;
@@ -134,23 +221,10 @@ app.post('/calendar', async (req, res) => {
       await newCalendarEvent.save();
       res.status(201).send('Calendar event saved successfully');
     }
+    // Send API response back to client
+    res.json(apiResponse.data);
   } catch (err) {
     console.error('Error saving calendar event:', err.message);
-    res.status(500).send('Server Error');
-  }
-});
-
-
-app.post('/users', async (req, res) => {
-  try {
-    const { userID, latitude, longitude } = req.body;
-    await User.findByIdAndUpdate(userID, {
-      locLatitude: latitude,
-      locLongitude: longitude,
-    });
-    res.status(200).send('Location updated successfully');
-  } catch (err) {
-    console.error('Error updating location:', err.message);
     res.status(500).send('Server Error');
   }
 });
@@ -172,24 +246,33 @@ app.delete('/calendar', async (req, res) => {
   }
 });
 
-app.post('/trait', async (req, res) => {
-  try {
-    const { userID, traitType } = req.body;
-    const existingTrait = await Trait.findOne({ userID, traitType });
+// ---------------------- Trait -----------------------------
 
-    if (existingTrait) {
-      existingTrait.traitType = traitType;
-      await existingTrait.save();
-      res.status(200).send('Trait updated successfully');
-    } else {
-      const newTrait = new Trait({
-        userID,
-        traitType: traitType,
-        traitDesirability: 0.5,
-        });
-      await newTrait.save();
-      res.status(201).send('Trait saved successfully');
-    }
+app.post('/trait', async (req, res) => {
+  const { userID, traitType } = req.body;
+
+  try {
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': traitType // assuming traitType is the message
+      }
+    });
+
+    // Extract operation from Watson Assistant response
+    const operation = watsonResponse.result.context.operation;
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/trait?operation=${operation}`);
+
+    // Add trait to MongoDB database
+    dbHelpers.addTrait(userID, traitType);
+
+    // Send API response back to client
+    res.json(apiResponse.data);
   } catch (err) {
     console.error('Error saving trait:', err.message);
     res.status(500).send('Server Error');
@@ -207,7 +290,139 @@ app.get('/trait/:userID', async (req, res) => {
   }
 });
 
+// ---------------------- Chat -----------------------------
 
+app.post('/chat', async (req, res) => {
+  const { userID, chatTrait } = req.body;
+
+  try {
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': chatTrait // assuming chatTrait is the message
+      }
+    });
+
+    // Extract operation from Watson Assistant response
+    const operation = watsonResponse.result.context.operation;
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/chat?operation=${operation}`);
+
+    // Add chat to MongoDB database
+    dbHelpers.addChat(userID, chatTrait);
+
+    // Send API response back to client
+    res.json(apiResponse.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
+  }
+});
+
+// ---------------------- Podcast -----------------------------
+
+app.post('/podcast', async (req, res) => {
+  const { userID, title, podcastURL, podcastDescription, podcastTrait } = req.body;
+
+  try {
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': title // assuming title is the message
+      }
+    });
+
+    // Extract operation from Watson Assistant response
+    const operation = watsonResponse.result.context.operation;
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/podcast?operation=${operation}`);
+
+    // Add podcast to MongoDB database
+    dbHelpers.addPodcast(userID, title, podcastURL, podcastDescription, podcastTrait);
+
+    // Send API response back to client
+    res.json(apiResponse.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
+  }
+});
+
+// ---------------------- Exercise -----------------------------
+
+app.post('/exercise', async (req, res) => {
+  const { userID,  exerciseName, exerciseDescription, exerciseTrait} = req.body;
+
+  try {
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': exerciseName // assuming exerciseName is the message
+      }
+    });
+
+    // Extract operation from Watson Assistant response
+    const operation = watsonResponse.result.context.operation;
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/exercise?operation=${operation}`);
+
+    // Add exercise to MongoDB database
+    dbHelpers.addExercise(userID, exerciseName, exerciseDescription, exerciseTrait);
+
+    // Send API response back to client
+    res.json(apiResponse.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
+  }
+});
+
+// ---------------------- Meal -----------------------------
+
+app.post('/meal', async (req, res) => {
+  const { userID, mealName, mealDescription, mealTrait } = req.body;
+
+  try {
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': mealName // assuming mealName is the message
+      }
+    });
+
+    // Extract operation from Watson Assistant response
+    const operation = watsonResponse.result.context.operation;
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/meal?operation=${operation}`);
+
+    // Add meal to MongoDB database
+    dbHelpers.addMeal(userID, mealName, mealDescription, mealTrait);
+
+    // Send API response back to client
+    res.json(apiResponse.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
+  }
+});
+
+// ---------------------------------------------------
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
