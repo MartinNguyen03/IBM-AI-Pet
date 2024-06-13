@@ -65,14 +65,31 @@ app.post('/history', async (req, res) => {
 
 // ---------------------- Users -----------------------------
 
-app.get('/users', async (req, res) => {
+app.get('/users/:userID', async (req, res) => {
+  const { userID } = req.params;
+
   try {
-    const users = await User.find();
-    console.log(users);
-    res.json(users);
-  } catch (err) {
-    console.log('error fetching users');
-    res.status(500).send('Server Error');
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': activityType // assuming activityType is the message
+      }
+    });
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/users/${userID}`);
+
+    // Fetch user from MongoDB database
+    const user = await dbHelpers.getUser(userID);
+
+    // Send API response and user data back to client
+    res.json({ apiResponse: apiResponse.data, user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
   }
 });
 
