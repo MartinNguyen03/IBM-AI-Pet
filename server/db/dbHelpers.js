@@ -183,7 +183,7 @@ async function addMeal(userID, mealName, mealDescription, mealTrait) {
     });
     }
 
-async function addPodcast(userID, title,podcastURL,podcastDescription,podcastTrait) {
+async function addPodcast(userID, title, podcastURL, podcastDescription, podcastTrait) {
     User.findById(userID , (err, user) => {
         if (err) {
           console.log(err);
@@ -470,6 +470,7 @@ module.exports = {
     getComms,
     getExercise,
     getMeal,
+    getHistory,
     getExerciseTrait,
     getMealTrait,
     getPodcastTrait,
