@@ -63,6 +63,8 @@ app.post('/history', async (req, res) => {
   }
 });
 
+// Do we want to get history?
+
 // ---------------------- Users -----------------------------
 
 app.get('/users/:userID', async (req, res) => {
@@ -96,6 +98,29 @@ app.get('/users/:userID', async (req, res) => {
 app.post('/users', async (req, res) => {
   try {
     const { userID, latitude, longitude } = req.body;
+
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': userID // assuming userID is the message
+      }
+    });
+
+    // Extract operation from Watson Assistant response
+    const operation = watsonResponse.result.context.operation;
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/user?operation=${operation}`);
+
+    // Add user to MongoDB database
+    dbHelpers.addUser(userID, latitude, longitude);
+
+    // Send API response back to client
+    res.json(apiResponse.data);
+  
     await User.findByIdAndUpdate(userID, {
       locLatitude: latitude,
       locLongitude: longitude,
@@ -146,7 +171,7 @@ app.post('/comms', async (req, res) => {
       sessionId: userID, // assuming userID can be used as sessionId
       input: {
         'message_type': 'text',
-        'text': activityType // assuming activityType is the message
+        'text': recipientName // assuming recipientName is the message
       }
     });
 
@@ -154,7 +179,7 @@ app.post('/comms', async (req, res) => {
     const operation = watsonResponse.result.context.operation;
 
     // Make request to your API
-    const apiResponse = await axios.get(`${process.env.API_URL}/history?operation=${operation}`);
+    const apiResponse = await axios.get(`${process.env.API_URL}/comms?operation=${operation}`);
 
     // Add comms to MongoDB database
     dbHelpers.addComms(userID, recipientName, recipientPhoneNumber);
@@ -182,14 +207,35 @@ app.post('/comms', async (req, res) => {
   }
 });
 
+
 app.get('/comms/:userID', async (req, res) => {
+
   try {
-    const { userID } = req.params;
+    const { userID, recipientName, recipientPhoneNumber } = req.params;
     const contacts = await Comms.find({ userID });
     res.status(200).json(contacts);
-  } catch (err) {
-    console.error('Error fetching contacts:', err.message);
-    res.status(500).send('Server Error');
+
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': recipientName // assuming recipientName is the message
+      }
+    });
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/comms/${userID}`);
+
+    // Fetch comms from MongoDB database
+    const comms = await dbHelpers.getComms(userID, recipientName, recipientPhoneNumber);
+
+    // Send API response and comms data back to client
+    res.json({ apiResponse: apiResponse.data, comms });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
   }
 });
 
@@ -263,6 +309,35 @@ app.delete('/calendar', async (req, res) => {
   }
 });
 
+
+app.get('/calendar/:userID', async (req, res) => {
+  const { userID, eventId, activityType, startDate, endDate, activityName } = req.params;
+
+  try {
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': activityType // assuming activityType is the message
+      }
+    });
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/calendar/${userID}`);
+
+    // Fetch calendar from MongoDB database
+    const calendar = await dbHelpers.getCalendar(userID, eventId, activityType, startDate, endDate, activityName);
+
+    // Send API response and calendar data back to client
+    res.json({ apiResponse: apiResponse.data, calendar });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
+  }
+});
+
 // ---------------------- Trait -----------------------------
 
 app.post('/trait', async (req, res) => {
@@ -298,14 +373,34 @@ app.post('/trait', async (req, res) => {
 
 app.get('/trait/:userID', async (req, res) => {
   try {
-    const { userID } = req.params;
-    const traits = await Trait.find({ userID });
-    res.status(200).json(traits);
+    const { userID, traitType } = req.params;
+
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': traitType // assuming traitType is the message
+      }
+    });
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/trait/${userID}`);
+
+    // Fetch trait from MongoDB database
+    const traits = await dbHelpers.getTrait(userID, traitType);
+
+    // Send API response and traits data back to client
+    res.json({ apiResponse: apiResponse.data, traits });
+
+    // res.status(200).json(traits);
   } catch (err) {
     console.error('Error fetching traits:', err.message);
     res.status(500).send('Server Error');
   }
 });
+
 
 // ---------------------- Chat -----------------------------
 
@@ -339,6 +434,8 @@ app.post('/chat', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while processing your request.' });
   }
 });
+
+
 
 // ---------------------- Podcast -----------------------------
 
