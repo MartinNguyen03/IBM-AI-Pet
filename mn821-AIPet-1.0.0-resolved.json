@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://virtserver.swaggerhub.com/mn821/AIPet/1.0.0",
+      "url": "localhost:3000",
       "description": "SwaggerHub API for AIPet"
     }
   ],
