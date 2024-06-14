@@ -82,7 +82,7 @@ app.get('/users/:userID', async (req, res) => {
       sessionId: userID, // assuming userID can be used as sessionId
       input: {
         'message_type': 'text',
-        'text': activityType // assuming activityType is the message
+        // 'text': activityType // assuming activityType is the message
       }
     });
 
