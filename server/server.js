@@ -28,6 +28,20 @@ const assistant = new AssistantV2({
   assistantId: process.env.WATSON_ASSISTANT_ID,
 });
 
+// Middleware to create Watson Assistant session
+async function createSession(req, res, next) {
+  try {
+    const sessionResponse = await assistant.createSession({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+    });
+    req.sessionId = sessionResponse.result.session_id;
+    next();
+  } catch (error) {
+    console.error('Error creating session:', error);
+    res.status(500).send('Error creating session');
+  }
+}
+
 const { User, Trait, Chat, Comms, History, Podcast, Calendar, Exercise, Meal } = require('./db/model.js');
 
 // Root route
@@ -37,8 +51,8 @@ app.get('/', (req, res) => {
 
 // ---------------------- History -----------------------------
 
-app.post('/history', async (req, res) => {
-  const { userID, activityType, traitType } = req.body;
+app.get('/history/:userID', async (req, res) => {
+  const { userID } = req.params;
 
   try {
     // Send message to Watson Assistant
@@ -51,16 +65,39 @@ app.post('/history', async (req, res) => {
       }
     });
 
-    // Extract operation from Watson Assistant response
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/history/${userID}`);
+
+    // Fetch history from MongoDB database
+    const history = await dbHelpers.getHistory(userID, activityType, traitType);
+
+    // Send API response and history data back to client
+    res.json({ apiResponse: apiResponse.data, history });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
+  }
+});
+
+app.post('/history', createSession, async (req, res) => {
+  const { userID, activityType, traitType } = req.body;
+
+  try {
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: req.sessionId,
+      input: {
+        'message_type': 'text',
+        'text': activityType
+      }
+    });
+
     const operation = watsonResponse.result.context.operation;
 
-    // Make request to your API
     const apiResponse = await axios.get(`${process.env.API_URL}/history?operation=${operation}`);
 
-    // Add history to MongoDB database
     dbHelpers.addHistory(userID, activityType, traitType);
 
-    // Send API response back to client
     res.json(apiResponse.data);
   } catch (error) {
     console.error(error);
@@ -68,31 +105,27 @@ app.post('/history', async (req, res) => {
   }
 });
 
-// Do we want to get history?
+
 
 // ---------------------- Users -----------------------------
 
-app.get('/users/:userID', async (req, res) => {
+app.get('/users/:userID', createSession, async (req, res) => {
   const { userID } = req.params;
 
   try {
-    // Send message to Watson Assistant
     const watsonResponse = await assistant.message({
       assistantId: process.env.WATSON_ASSISTANT_ID,
-      sessionId: userID, // assuming userID can be used as sessionId
+      sessionId: req.sessionId,
       input: {
         'message_type': 'text',
-        // 'text': activityType // assuming activityType is the message
+        'text': userID
       }
     });
 
-    // Make request to your API
     const apiResponse = await axios.get(`${process.env.API_URL}/users/${userID}`);
 
-    // Fetch user from MongoDB database
     const user = await dbHelpers.getUser(userID);
 
-    // Send API response and user data back to client
     res.json({ apiResponse: apiResponse.data, user });
   } catch (error) {
     console.error(error);
@@ -102,7 +135,7 @@ app.get('/users/:userID', async (req, res) => {
 
 app.post('/users', async (req, res) => {
   try {
-    const { userID, latitude, longitude } = req.body;
+    const { username, password, name, phoneNumber, latitude, longitude } = req.body;
 
     // Send message to Watson Assistant
     const watsonResponse = await assistant.message({
@@ -121,7 +154,7 @@ app.post('/users', async (req, res) => {
     const apiResponse = await axios.get(`${process.env.API_URL}/user?operation=${operation}`);
 
     // Add user to MongoDB database
-    dbHelpers.addUser(userID, latitude, longitude);
+    dbHelpers.addUser(username, password, name, phoneNumber, latitude, longitude);
 
     // Send API response back to client
     res.json(apiResponse.data);
