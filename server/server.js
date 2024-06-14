@@ -30,6 +30,11 @@ const assistant = new AssistantV2({
 
 const { User, Trait, Chat, Comms, History, Podcast, Calendar, Exercise, Meal } = require('./db/model.js');
 
+// Root route
+app.get('/', (req, res) => {
+  res.send('Welcome to the IBM AI Pet API');
+});
+
 // ---------------------- History -----------------------------
 
 app.post('/history', async (req, res) => {
