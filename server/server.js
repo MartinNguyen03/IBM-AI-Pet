@@ -87,7 +87,7 @@ app.post('/calendar', async (req, res) => {
       existingEvent.endDate = endDate;
       existingEvent.activityName = activityName;
       await existingEvent.save();
-      console.log('Calendar event updated successfully:', eventId );
+      console.log('Calendar event updated successfully:', eventId);
       res.status(200).send('Calendar event updated successfully');
     } else {
       const newCalendarEvent = new Calendar({
@@ -100,7 +100,7 @@ app.post('/calendar', async (req, res) => {
       });
       await newCalendarEvent.save();
       res.status(201).send('Calendar event saved successfully');
-      console.log('Calendar event saved successfully:', eventId );
+      console.log('Calendar event saved successfully:', eventId);
     }
   } catch (err) {
     console.error('Error saving calendar event:', err.message);
@@ -125,9 +125,9 @@ app.post('/users', async (req, res) => {
 
 app.delete('/calendar', async (req, res) => {
   try {
-    const { userID, activityName } = req.body;
-    console.log('Received delete request for event:', activityName, 'for user:', userID);
-    const result = await Calendar.deleteOne({ userID, activityName });
+    const { userID, eventId } = req.body;
+    console.log('Received delete request for event:', eventId, 'for user:', userID);
+    const result = await Calendar.deleteOne({ userID, eventId });
     console.log('Delete result:', result);
     if (result.deletedCount === 1) {
       res.status(200).send('Calendar event deleted successfully');

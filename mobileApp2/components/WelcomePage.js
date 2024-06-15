@@ -203,8 +203,8 @@ export default function WelcomePage({ navigation, route }) {
       const events = await Calendar.getEventsAsync([calendarId], new Date(), new Date(new Date().setDate(new Date().getDate() + 30)));
       
       // Compare with previous events
-      const newEvents = events.filter(event => !previousEvents.some(prevEvent => prevEvent.title === event.title));
-      const deletedEvents = previousEvents.filter(prevEvent => !events.some(event => event.title === prevEvent.title));
+      const newEvents = events.filter(event => !previousEvents.some(prevEvent => prevEvent.id === event.id));
+      const deletedEvents = previousEvents.filter(prevEvent => !events.some(event => event.id === prevEvent.id));
 
       // Update previous events state
       setPreviousEvents(events);
@@ -244,7 +244,6 @@ export default function WelcomePage({ navigation, route }) {
             body: JSON.stringify({
               userID: userID,
               eventId: event.id,
-              activityName: event.title,
             }),
           });
         } catch (err) {
