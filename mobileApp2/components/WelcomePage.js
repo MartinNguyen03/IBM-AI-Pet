@@ -16,7 +16,7 @@ export default function WelcomePage({ navigation, route }) {
 
   const fetchContactsFromServer = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/comms/${userID}`);
+      const response = await fetch(`http://localhost:5001/comms/${userID}`);
       const serverContacts = await response.json();
 
       const { data: deviceContacts } = await Contacts.getContactsAsync({
@@ -85,7 +85,7 @@ export default function WelcomePage({ navigation, route }) {
     setLocation(loc.coords);
   
     try {
-      await fetch('http://localhost:5000/users', {
+      await fetch('http://localhost:5001/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -118,7 +118,7 @@ export default function WelcomePage({ navigation, route }) {
       data.forEach(async (contact) => {
         if (contact.phoneNumbers && contact.phoneNumbers.length > 0) {
           try {
-            await fetch('http://localhost:5000/comms', {
+            await fetch('http://localhost:5001/comms', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -167,7 +167,7 @@ export default function WelcomePage({ navigation, route }) {
       // Send events to the server
       events.forEach(async (event) => {
         try {
-          await fetch('http://localhost:5000/calendar', {
+          await fetch('http://localhost:5001/calendar', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -212,13 +212,15 @@ export default function WelcomePage({ navigation, route }) {
       // Handle new events
       for (const event of newEvents) {
         try {
-          await fetch('http://localhost:5000/calendar', {
+          console.log('Adding event:', event.title);
+          await fetch('http://localhost:5001/calendar', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
               userID: userID,
+              eventId: event.id,
               activityType: 'Other',
               activityName: event.title,
               startDate: event.startDate,
@@ -234,13 +236,14 @@ export default function WelcomePage({ navigation, route }) {
       for (const event of deletedEvents) {
         try {
           console.log('Deleting event:', event.title); // Add logging here to debug
-          await fetch('http://localhost:5000/calendar', {
+          await fetch('http://localhost:5001/calendar', {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
               userID: userID,
+              eventId: event.id,
               activityName: event.title,
             }),
           });
