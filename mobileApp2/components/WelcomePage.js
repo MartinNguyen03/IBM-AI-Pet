@@ -205,6 +205,14 @@ export default function WelcomePage({ navigation, route }) {
       // Compare with previous events
       const newEvents = events.filter(event => !previousEvents.some(prevEvent => prevEvent.id === event.id));
       const deletedEvents = previousEvents.filter(prevEvent => !events.some(event => event.id === prevEvent.id));
+      const updatedEvents = events.filter(event => {
+        const prevEvent = previousEvents.find(prevEvent => prevEvent.id === event.id);
+        return prevEvent && (
+          prevEvent.title !== event.title ||
+          prevEvent.startDate !== event.startDate ||
+          prevEvent.endDate !== event.endDate
+        );
+      });
 
       // Update previous events state
       setPreviousEvents(events);
@@ -229,6 +237,30 @@ export default function WelcomePage({ navigation, route }) {
           });
         } catch (err) {
           console.error('Error sending new event to server:', err);
+        }
+      }
+
+      // Handle updated events
+      for (const event of updatedEvents) {
+        try {
+          console.log('Updating event:', event.title);
+          await fetch('http://localhost:5001/calendar', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userID: userID,
+              eventId: event.id,
+              activityType: 'Other',
+              activityName: event.title,
+              startDate: event.startDate,
+              endDate: event.endDate,
+            }),
+          });
+        } catch (err) {
+          console.error('Error updating event on server:', err);
+          //Alert.alert('Error updating event on server:', err.message);
         }
       }
 
