@@ -1,4 +1,5 @@
 //IBM-AI-PET/db/dbHelpers.js
+const mongoose = require('mongoose');
 const { User, Trait, Chat, Comms, History, Podcast, Calendar, Exercise, Meal } = require('./model.js'); 
 const models = [User, Trait, Chat, Comms, History, Podcast, Calendar, Exercise, Meal];
 
@@ -272,6 +273,7 @@ async function getUser(userID) {
         }
       });
     }
+
 async function getCalendar(userID) {
     await Calendar.find({ userID }, (err, calendar) => {
         if (err) {
