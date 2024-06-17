@@ -140,6 +140,36 @@ app.delete('/calendar', async (req, res) => {
   }
 });
 
+app.get('/calendar/:userID', async (req, res) => {
+  try {
+    console.log('get calendar from db');
+    const { userID } = req.params;
+    const events = await Calendar.find({ userID });
+    console.log('Fetched events:', events); // Add logging to check fetched events
+    res.status(200).json(events);
+  } catch (err) {
+    console.error('Error fetching calendar events:', err);
+    res.status(500).send('Server Error');
+  }
+});
+
+// app.delete('/calendar/all/:userID', async (req, res) => {
+//   try {
+//     const { userID } = req.params;
+//     const result = await Calendar.deleteMany({ userID });
+
+//     if (result.deletedCount > 0) {
+//       res.status(200).send('All calendar events deleted successfully');
+//     } else {
+//       res.status(404).send('No calendar events found to delete');
+//     }
+//   } catch (err) {
+//     console.error('Error deleting calendar events:', err.message);
+//     res.status(500).send('Server Error');
+//   }
+// });
+
+
 
 
 
