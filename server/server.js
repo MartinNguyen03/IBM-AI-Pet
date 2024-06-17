@@ -52,7 +52,7 @@ app.get('/', (req, res) => {
 // ---------------------- History -----------------------------
 
 app.get('/history/:userID', async (req, res) => {
-  const { userID } = req.params;
+  const { userID, activityType, traitType } = req.params;
 
   try {
     // Send message to Watson Assistant
@@ -104,7 +104,6 @@ app.post('/history', createSession, async (req, res) => {
     res.status(500).json({ error: 'An error occurred while processing your request.' });
   }
 });
-
 
 
 // ---------------------- Users -----------------------------
@@ -473,7 +472,33 @@ app.post('/chat', async (req, res) => {
   }
 });
 
+app.get('/chat/:userID', async (req, res) => {
+  const { userID, chatTrait } = req.params;
 
+  try {
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': chatTrait // assuming chatTrait is the message
+      }
+    });
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/chat/${userID}`);
+
+    // Fetch chat from MongoDB database
+    const chat = await dbHelpers.getChat(userID, chatTrait);
+
+    // Send API response and chat data back to client
+    res.json({ apiResponse: apiResponse.data, chat });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
+  }
+});
 
 // ---------------------- Podcast -----------------------------
 
@@ -508,10 +533,38 @@ app.post('/podcast', async (req, res) => {
   }
 });
 
+app.get('/podcast/:userID', async (req, res) => {
+  const { userID, title, podcastURL, podcastDescription, podcastTrait } = req.params;
+
+  try {
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': title // assuming title is the message
+      }
+    });
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/podcast/${userID}`);
+
+    // Fetch podcast from MongoDB database
+    const podcast = await dbHelpers.getPodcast(userID, title, podcastURL, podcastDescription, podcastTrait);
+
+    // Send API response and podcast data back to client
+    res.json({ apiResponse: apiResponse.data, podcast });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
+  }
+});
+
 // ---------------------- Exercise -----------------------------
 
 app.post('/exercise', async (req, res) => {
-  const { userID,  exerciseName, exerciseDescription, exerciseTrait} = req.body;
+  const { userID, exerciseName, exerciseDescription, exerciseTrait} = req.body;
 
   try {
     // Send message to Watson Assistant
@@ -535,6 +588,34 @@ app.post('/exercise', async (req, res) => {
 
     // Send API response back to client
     res.json(apiResponse.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
+  }
+});
+
+app.get('/exercise/:userID', async (req, res) => {
+  const { userID, exerciseName, exerciseDescription, exerciseTrait } = req.params;
+
+  try {
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': exerciseName // assuming exerciseName is the message
+      }
+    });
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/exercise/${userID}`);
+
+    // Fetch exercise from MongoDB database
+    const exercise = await dbHelpers.getExercise(userID, exerciseName, exerciseDescription, exerciseTrait);
+
+    // Send API response and exercise data back to client
+    res.json({ apiResponse: apiResponse.data, exercise });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'An error occurred while processing your request.' });
@@ -568,6 +649,34 @@ app.post('/meal', async (req, res) => {
 
     // Send API response back to client
     res.json(apiResponse.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
+  }
+});
+
+app.get('/meal/:userID', async (req, res) => {
+  const { userID, mealName, mealDescription, mealTrait } = req.params;
+
+  try {
+    // Send message to Watson Assistant
+    const watsonResponse = await assistant.message({
+      assistantId: process.env.WATSON_ASSISTANT_ID,
+      sessionId: userID, // assuming userID can be used as sessionId
+      input: {
+        'message_type': 'text',
+        'text': mealName // assuming mealName is the message
+      }
+    });
+
+    // Make request to your API
+    const apiResponse = await axios.get(`${process.env.API_URL}/meal/${userID}`);
+
+    // Fetch meal from MongoDB database
+    const meal = await dbHelpers.getMeal(userID, mealName, mealDescription, mealTrait);
+
+    // Send API response and meal data back to client
+    res.json({ apiResponse: apiResponse.data, meal });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'An error occurred while processing your request.' });
