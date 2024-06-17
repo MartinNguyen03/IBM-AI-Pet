@@ -108,11 +108,11 @@ app.get('/users/:userID',  async (req, res) => {
     //   }
     // });
 
-    const apiResponse = await axios.get(`${process.env.API_URL}/users/${userID}`);
+    // const apiResponse = await axios.get(`${process.env.API_URL}/users/${userID}`);
 
     const user = await dbHelpers.getUser(userID);
 
-    res.json({ apiResponse: apiResponse.data, user });
+    res.json({user});
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'An error occurred while processing your request.' });
