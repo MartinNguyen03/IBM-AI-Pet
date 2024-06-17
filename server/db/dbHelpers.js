@@ -1,266 +1,222 @@
-//IBM-AI-PET/db/dbHelpers.js
 const mongoose = require('mongoose');
 const { User, Trait, Chat, Comms, History, Podcast, Calendar, Exercise, Meal } = require('./model.js'); 
 const models = [User, Trait, Chat, Comms, History, Podcast, Calendar, Exercise, Meal];
 
 /* ------------------- ADD FUNCTIONS ------------------- */
 async function addHistory(userID, activityType, traitType) {
-    User.findById(userID , (err, user) => {
-        if (err) {
-          console.log(err);
-        } else if (user) {
-          const history = new History({
-            userID: user._id,
-            activityType: activityType,
-            traitType: traitType ? traitType : undefined,
-            timestamp: Date.now(),
-          });
-      
-          history.save((err) => {
-            if (err) {
-              console.log(err);
-            } else {
-              console.log('History created successfully!');
-            }
-          });
-        } else {
-          console.log('User not found!');
-        }
+  try {
+    const user = await User.findById(userID).exec();
+    if (user) {
+      const history = new History({
+        userID: user._id,
+        activityType: activityType,
+        traitType: traitType || undefined,
+        timestamp: Date.now(),
       });
+
+      await history.save();
+      console.log('History created successfully!');
+    } else {
+      console.log('User not found!');
     }
+  } catch (err) {
+    console.error('Error adding history:', err);
+  }
+}
 
 async function addUser(username, password, name, phoneNumber, longitude, latitude) {
-  const newUser = new User({
-    username: username,
-    password: password,
-    name: name,
-    phoneNumber: phoneNumber,
-    locLongitude: longitude,
-    locLatitude: latitude,
-  });
+  try {
+    const newUser = new User({
+      username,
+      password,
+      name,
+      phoneNumber,
+      locLongitude: longitude,
+      locLatitude: latitude,
+    });
 
-  await newUser.save((err) => {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log('User created successfully!');
-    }
-  });
-  addHistory(newUser._id, 'User Created');
+    await newUser.save();
+    console.log('User created successfully!');
+    await addHistory(newUser._id, 'User Created');
+  } catch (err) {
+    console.error('Error adding user:', err);
+  }
 }
 
 async function addCalendar(userID, activityName, activityType, startDate, endDate) {
-    User.findById(userID , (err, user) => {
-        if (err) {
-          console.log(err);
-        } else if (user) {
-            const newCalendar = new Calendar({
-                userID: userID,
-                activityName: activityName,
-                activityType: activityType,
-                startDate: startDate,
-                endDate: endDate,
-            });
-             newCalendar.save((err) => {
-                if (err) {
-                console.log(err);
-                } else {
-                console.log('Calendar created successfully!');
-                }
-                });    
-            addHistory(userID, 'Calendar Entry Created');  
-        } else {
-            console.log('User not found!');
-        }
-        });   
+  try {
+    const user = await User.findById(userID).exec();
+    if (user) {
+      const newCalendar = new Calendar({
+        userID,
+        activityName,
+        activityType,
+        startDate,
+        endDate,
+      });
+
+      await newCalendar.save();
+      console.log('Calendar created successfully!');
+      await addHistory(userID, 'Calendar Entry Created');
+    } else {
+      console.log('User not found!');
     }
+  } catch (err) {
+    console.error('Error adding calendar:', err);
+  }
+}
 
 async function addChat(userID, chatTrait) {
-    User.findById(userID , (err, user) => {
-        if (err) {
-          console.log(err);
-        } else if (user) {
-            const newChat = new Chat({
-                userID: userID,
-                chatTrait: chatTrait,
-                timestamp: Date.now(), // dateSuggested
-            });
+  try {
+    const user = await User.findById(userID).exec();
+    if (user) {
+      const newChat = new Chat({
+        userID,
+        chatTrait,
+        timestamp: Date.now(), // dateSuggested
+      });
 
-             newChat.save((err) => {
-                if (err) {
-                console.log(err);
-                } else {
-                console.log('Chat created successfully!');
-                }
-            });
-
-            addHistory(userID, 'Chat Entry Created');
-        } else {
-            console.log('User not found!');
-        }
-        });
+      await newChat.save();
+      console.log('Chat created successfully!');
+      await addHistory(userID, 'Chat Entry Created');
+    } else {
+      console.log('User not found!');
     }
+  } catch (err) {
+    console.error('Error adding chat:', err);
+  }
+}
 
 async function addComms(userID, recipientPhoneNumber, recipientName) {
-    User.findById(userID , (err, user) => {
-        if (err) {
-          console.log(err);
-        } else if (user) {
-            const newComms = new Comms({
-                userID: userID,
-                recipientPhoneNumber: recipientPhoneNumber,
-                recipientName: recipientName,
-                timestamp: Date.now(), //dateSuggested
-            });
+  try {
+    const user = await User.findById(userID).exec();
+    if (user) {
+      const newComms = new Comms({
+        userID,
+        recipientPhoneNumber,
+        recipientName,
+        timestamp: Date.now(), //dateSuggested
+      });
 
-             newComms.save((err) => {
-                if (err) {
-                console.log(err);
-                } else {
-                console.log('Comms created successfully!');
-                }
-            });
-
-            addHistory(userID, 'Comms Entry Created');
-        } else {
-            console.log('User not found!');
-        }
-    });    
+      await newComms.save();
+      console.log('Comms created successfully!');
+      await addHistory(userID, 'Comms Entry Created');
+    } else {
+      console.log('User not found!');
     }
+  } catch (err) {
+    console.error('Error adding comms:', err);
+  }
+}
 
 async function addExercise(userID, exerciseName, exerciseDescription, exerciseTrait) {
-    User.findById(userID , (err, user) => {
-        if (err) {
-          console.log(err);
-        } else if (user) {
-            const newExercise = new Exercise({
-                userID: userID,
-                exerciseName: exerciseName,
-                exerciseDescription: exerciseDescription,
-                exerciseTrait: exerciseTrait,
-            });
+  try {
+    const user = await User.findById(userID).exec();
+    if (user) {
+      const newExercise = new Exercise({
+        userID,
+        exerciseName,
+        exerciseDescription,
+        exerciseTrait,
+      });
 
-             newExercise.save((err) => {
-                if (err) {
-                console.log(err);
-                } else {
-                console.log('Exercise created successfully!');
-                }
-            });
-
-            addHistory(userID, 'Exercise Entry Created');
-        } else {
-            console.log('User not found!');
-        }
-    });
+      await newExercise.save();
+      console.log('Exercise created successfully!');
+      await addHistory(userID, 'Exercise Entry Created');
+    } else {
+      console.log('User not found!');
     }
+  } catch (err) {
+    console.error('Error adding exercise:', err);
+  }
+}
 
 async function addMeal(userID, mealName, mealDescription, mealTrait) {
-    User.findById(userID , (err, user) => {
-        if (err) {
-          console.log(err);
-        } else if (user) {
-            const newMeal = new Meal({
-                userID: userID,
-                mealName: mealName,
-                mealDescription: mealDescription, 
-                mealTrait: mealTrait,
-                dateSuggested: Date.now(),
-            });
+  try {
+    const user = await User.findById(userID).exec();
+    if (user) {
+      const newMeal = new Meal({
+        userID,
+        mealName,
+        mealDescription,
+        mealTrait,
+        dateSuggested: Date.now(),
+      });
 
-             newMeal.save((err) => {
-                if (err) {
-                console.log(err);
-                } else {
-                console.log('Meal created successfully!');
-                }
-            });
-
-            addHistory(userID, 'Meal Entry Created');
-        } else {
-            console.log('User not found!');
-        }
-    });
+      await newMeal.save();
+      console.log('Meal created successfully!');
+      await addHistory(userID, 'Meal Entry Created');
+    } else {
+      console.log('User not found!');
     }
+  } catch (err) {
+    console.error('Error adding meal:', err);
+  }
+}
 
 async function addPodcast(userID, title, podcastURL, podcastDescription, podcastTrait) {
-    User.findById(userID , (err, user) => {
-        if (err) {
-          console.log(err);
-        } else if (user) {
-            const newPodcast = new Podcast({
-                userID: userID,
-                title: title, // podcastName
-                podcastURL: podcastURL, 
-                podcastDescription: podcastDescription, 
-                podcastTrait: podcastTrait,
-            });
+  try {
+    const user = await User.findById(userID).exec();
+    if (user) {
+      const newPodcast = new Podcast({
+        userID,
+        title, // podcastName
+        podcastURL,
+        podcastDescription,
+        podcastTrait,
+      });
 
-             newPodcast.save((err) => {
-                if (err) {
-                console.log(err);
-                } else {
-                console.log('Podcast created successfully!');
-                }
-            });
-
-            addHistory(userID, 'Podcast Entry Created');
-        } else {
-            console.log('User not found!');
-        }
-    });
+      await newPodcast.save();
+      console.log('Podcast created successfully!');
+      await addHistory(userID, 'Podcast Entry Created');
+    } else {
+      console.log('User not found!');
     }
+  } catch (err) {
+    console.error('Error adding podcast:', err);
+  }
+}
 
 async function addTrait(userID, traitType) {
-    User.findById(userID , (err, user) => {
-        if (err) {
-            console.log(err);
-        } else if (user) {
+  try {
+    const user = await User.findById(userID).exec();
+    if (user) {
+      const newTrait = new Trait({
+        userID,
+        traitType,
+        traitDesirability: 0.5,
+      });
 
-            const newTrait = new Trait({
-                userID: userID,
-                traitType: traitType,
-                traitDesirability: 0.5,
-                });
-            
-            newTrait.save((err) => {
-                if (err) {
-                    console.log(err);
-                } else {
-                    console.log('Trait created successfully!');
-                }
-            });
-
-            addHistory(userID, 'Trait Entry Created');
-        } else {
-            console.log('User not found!');
-        }
-    });
+      await newTrait.save();
+      console.log('Trait created successfully!');
+      await addHistory(userID, 'Trait Entry Created');
+    } else {
+      console.log('User not found!');
     }
+  } catch (err) {
+    console.error('Error adding trait:', err);
+  }
+}
 
 /* ------------------- DELETE FUNCTIONS ------------------- */
 async function deleteUser(userID) {
-    Promise.all(models.map(model => model.deleteMany({ userID })))
-        .then(() => {
-          console.log('All entries for the user have been deleted successfully!');
-        })
-        .catch(err => {
-          console.log('An error occurred:', err);
-        });
+  try {
+    await Promise.all(models.map(model => model.deleteMany({ userID })));
+    console.log('All entries for the user have been deleted successfully!');
+  } catch (err) {
+    console.error('An error occurred:', err);
+  }
 }
 
 async function deleteCalendar(userID, calendarID) {
-    await Calendar.deleteOne({ userID, _id: calendarID })
-    .then(() => {
-        console.log('Calendar entry deleted successfully!');
-    })
-    .catch(err => {
-        console.log('An error occurred:', err);
-    });
- 
-    addHistory(userID, 'Calendar Entry Deleted');
+  try {
+    await Calendar.deleteOne({ userID, _id: calendarID });
+    console.log('Calendar entry deleted successfully!');
+    await addHistory(userID, 'Calendar Entry Deleted');
+  } catch (err) {
+    console.error('An error occurred:', err);
+  }
 }
-
 
 /* ------------------- GET FUNCTIONS ------------------- */
 
@@ -285,198 +241,222 @@ async function getCalendar(userID) {
 }
 
 async function getChat(userID) {
-    await Chat.find({ userID }, (err, chat) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(chat);
-        }
-      });
-    }
-  
+  try {
+    const chat = await Chat.find({ userID }).exec();
+    console.log(chat);
+    return chat;
+  } catch (err) {
+    console.error('Error fetching chat:', err);
+    throw err;
+  }
+}
+
 async function getComms(userID) {
-    await Comms.find({ userID }, (err, comms) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(comms);
-        }
-      });
-    }
+  try {
+    const comms = await Comms.find({ userID }).exec();
+    console.log(comms);
+    return comms;
+  } catch (err) {
+    console.error('Error fetching comms:', err);
+    throw err;
+  }
+}
 
 async function getExercise(userID) {
-    await Exercise.find({ userID }, (err, exercise) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(exercise);
-        }
-      });
-    }
+  try {
+    const exercise = await Exercise.find({ userID }).exec();
+    console.log(exercise);
+    return exercise;
+  } catch (err) {
+    console.error('Error fetching exercise:', err);
+    throw err;
+  }
+}
 
 async function getMeal(userID) {
-    await Meal.find({ userID }, (err, meal) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(meal);
-        }
-      });
-    }
+  try {
+    const meal = await Meal.find({ userID }).exec();
+    console.log(meal);
+    return meal;
+  } catch (err) {
+    console.error('Error fetching meal:', err);
+    throw err;
+  }
+}
 
 async function getPodcast(userID) {
-    await Podcast.find({ userID }, (err, podcast) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(podcast);
-        }
-      });
-    }
+  try {
+    const podcast = await Podcast.find({ userID }).exec();
+    console.log(podcast);
+    return podcast;
+  } catch (err) {
+    console.error('Error fetching podcast:', err);
+    throw err;
+  }
+}
 
 async function getTrait(userID) {
-  await Trait.find({ userID }, (err, trait) => {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log(trait);
-    }
-  });
+  try {
+    const trait = await Trait.find({ userID }).exec();
+    console.log(trait);
+    return trait;
+  } catch (err) {
+    console.error('Error fetching trait:', err);
+    throw err;
+  }
 }
 
 async function getHistory(userID) {
-    await History.find({ userID }, (err, history) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(history);
-        }
-      });
-    }
+  try {
+    const history = await History.find({ userID }).exec();
+    console.log(history);
+    return history;
+  } catch (err) {
+    console.error('Error fetching history:', err);
+    throw err;
+  }
+}
 
-/* This function is used to get all exercises with a specific trait type along with it's desirability.
+/* This function is used to get all exercises with a specific trait type along with its desirability.
 * getExerciseTrait <userID> <traitType>
 */
 async function getExerciseTrait(userID, traitType) {
-  let exercises = await Exercise.find({ userID, exerciseTrait: traitType });
-  if (!exercises) {
+  try {
+    let exercises = await Exercise.find({ userID, exerciseTrait: traitType }).exec();
+    if (!exercises) {
       console.log('No exercise found');
       return;
-  }
-  let trait = await Trait.findOne({ traitType: traitType });
-  if (!trait) {
+    }
+    let trait = await Trait.findOne({ traitType }).exec();
+    if (!trait) {
       console.log('No trait found for this exercise');
       return;
+    }
+    let exerciseTrait = exercises.map(exercise => ({ ...exercise._doc, desirability: trait.desirability }));
+    return exerciseTrait;
+  } catch (err) {
+    console.error('Error fetching exercise trait:', err);
+    throw err;
   }
-  let exerciseTrait = exercises.map(exercises => ({ ...exercises, desirability: trait.desirability }));
-  return exerciseTrait;
 }
 
-/* This function is used to get all meals with a specific trait type along with it's desirability.
+/* This function is used to get all meals with a specific trait type along with its desirability.
  * getMealTrait <userID> <traitType>
  */
 async function getMealTrait(userID, traitType) {
-  let meals = await Meal.find({ userID, mealTrait: traitType });
-  if (!meals) {
+  try {
+    let meals = await Meal.find({ userID, mealTrait: traitType }).exec();
+    if (!meals) {
       console.log('No meal found');
       return;
-  }
-  let trait = await Trait.findOne({ traitType: traitType });
-  if (!trait) {
+    }
+    let trait = await Trait.findOne({ traitType }).exec();
+    if (!trait) {
       console.log('No trait found for this meal');
       return;
+    }
+    let mealTrait = meals.map(meal => ({ ...meal._doc, desirability: trait.desirability }));
+    return mealTrait;
+  } catch (err) {
+    console.error('Error fetching meal trait:', err);
+    throw err;
   }
-  let mealTrait = meals.map(meals => ({ ...meals, desirability: trait.desirability }));
-  return mealTrait;
 }
 
-/* This function is used to get all podcasts with a specific trait type along with it's desirability.
+/* This function is used to get all podcasts with a specific trait type along with its desirability.
   * getPodcastTrait <userID> <traitType>
   */
 async function getPodcastTrait(userID, traitType) {
-  let podcasts = await Podcast.find({ userID, podcastTrait: traitType });
-  if (!podcasts) {
+  try {
+    let podcasts = await Podcast.find({ userID, podcastTrait: traitType }).exec();
+    if (!podcasts) {
       console.log('No podcast found');
       return;
-  }
-  let trait = await Trait.findOne({ traitType: traitType });
-  if (!trait) {
+    }
+    let trait = await Trait.findOne({ traitType }).exec();
+    if (!trait) {
       console.log('No trait found for this podcast');
       return;
+    }
+    let podcastTrait = podcasts.map(podcast => ({ ...podcast._doc, desirability: trait.desirability }));
+    return podcastTrait;
+  } catch (err) {
+    console.error('Error fetching podcast trait:', err);
+    throw err;
   }
-  let podcastTrait = podcasts.map(podcasts => ({ ...podcasts, desirability: trait.desirability }));
-  return podcastTrait;
 }
 
 /* This function is used to get the desirability of a specific trait.
   * getTraitDesirability <userID> <traitType>
   */
 async function getTraitDesirability(userID, traitType) {
-    await Trait.find({ userID, traitType }, (err, trait) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(trait.desirability);
-        }
-      });
+  try {
+    const trait = await Trait.findOne({ userID, traitType }).exec();
+    if (trait) {
+      console.log(trait.desirability);
+      return trait.desirability;
+    } else {
+      console.log('Trait not found');
     }
+  } catch (err) {
+    console.error('Error fetching trait desirability:', err);
+    throw err;
+  }
+}
+
 /* ------------------- UPDATE FUNCTIONS ------------------- */
 
 /* This script is used to update a trait's desirability in the database.
 * updateTrait <userID> <traitID> <operation>
 */
 async function updateTrait(userID, traitID, operation) {
-    await Trait.findById(traitID, (err, trait) => {
-        if (err) {
-          console.log(err);
-        } else if (trait) {
-          if (operation === '+') {
-            trait.desirability = Math.min(trait.desirability + 0.1, 1);
-          } else if (operation === '-') {
-            trait.desirability = Math.max(trait.desirability - 0.1, -1);
-          } else {
-            console.log('Invalid operation. Please use "+" or "-".');
-            return;
-          }
-      
-          trait.save((err) => {
-            if (err) {
-              console.log(err);
-            } else {
-              console.log('Trait updated successfully!');
-              addHistory(userID, 'Trait Updated');
-            }
-          });
-        } else {
-          console.log('Trait not found!');
-        }
-      });
+  try {
+    const trait = await Trait.findById(traitID).exec();
+    if (trait) {
+      if (operation === '+') {
+        trait.desirability = Math.min(trait.desirability + 0.1, 1);
+      } else if (operation === '-') {
+        trait.desirability = Math.max(trait.desirability - 0.1, -1);
+      } else {
+        console.log('Invalid operation. Please use "+" or "-".');
+        return;
+      }
+
+      await trait.save();
+      console.log('Trait updated successfully!');
+      await addHistory(userID, 'Trait Updated');
+    } else {
+      console.log('Trait not found!');
     }
+  } catch (err) {
+    console.error('Error updating trait:', err);
+  }
+}
 
 module.exports = {
-    addHistory,
-    addUser,
-    addCalendar,
-    addChat,
-    addComms,
-    addExercise,
-    addMeal,
-    addPodcast,
-    getUser,
-    getPodcast,
-    getTrait,
-    getCalendar,
-    getChat,
-    getComms,
-    getExercise,
-    getMeal,
-    getHistory,
-    getExerciseTrait,
-    getMealTrait,
-    getPodcastTrait,
-    getTraitDesirability,
-    addTrait,
-    deleteUser,
-    deleteCalendar,
-    updateTrait
-}; 
+  addHistory,
+  addUser,
+  addCalendar,
+  addChat,
+  addComms,
+  addExercise,
+  addMeal,
+  addPodcast,
+  getUser,
+  getPodcast,
+  getTrait,
+  getCalendar,
+  getChat,
+  getComms,
+  getExercise,
+  getMeal,
+  getHistory,
+  getExerciseTrait,
+  getMealTrait,
+  getPodcastTrait,
+  getTraitDesirability,
+  addTrait,
+  deleteUser,
+  deleteCalendar,
+  updateTrait
+};
