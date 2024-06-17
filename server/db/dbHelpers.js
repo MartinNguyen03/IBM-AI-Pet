@@ -265,24 +265,23 @@ async function deleteCalendar(userID, calendarID) {
 /* ------------------- GET FUNCTIONS ------------------- */
 
 async function getUser(userID) {
-    await User.findById(userID, (err, user) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(user);
-        }
-      });
-    }
+  try {
+    const user = await User.findById(userID).exec(); // Using .exec() to get a promise
+    return user;
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    throw error;
+  }
+}
 
 async function getCalendar(userID) {
-    await Calendar.find({ userID }, (err, calendar) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(calendar);
-        }
-      });
-    }
+  try {
+    const calendar = await Calendar.find({ userID }).exec();
+    return calendar;
+  } catch (error) {
+    console.error('Error fetching calendar:', error);
+    throw error;
+  }
 
 async function getChat(userID) {
     await Chat.find({ userID }, (err, chat) => {

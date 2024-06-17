@@ -95,7 +95,7 @@ app.post('/history',  async (req, res) => {
 
 // ---------------------- Users -----------------------------
 
-app.get('/users/:userID',  async (req, res) => {
+app.get('/user/:userID',  async (req, res) => {
   const { userID } = req.params;
 
   try {
@@ -119,7 +119,7 @@ app.get('/users/:userID',  async (req, res) => {
   }
 });
 
-app.post('/users', async (req, res) => {
+app.post('/user', async (req, res) => {
   try {
     const { username, password, name, phoneNumber, latitude, longitude } = req.body;
 
