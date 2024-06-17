@@ -384,9 +384,9 @@ export default function WelcomePage({ navigation, route }) {
   //     const newEvents = serverEvents.filter(serverEvent => 
   //       !previousEvents.some(prevEvent => prevEvent._id === serverEvent._id)
   //     );
-  //     const deletedEvents = previousEvents.filter(prevEvent => 
-  //       !serverEvents.some(serverEvent => serverEvent._id === prevEvent._id)
-  //     );
+      const deletedEvents = previousEventsServer.filter(prevEvent => 
+        !serverEvents.some(serverEvent => serverEvent._id === prevEvent._id)
+      );
       const updatedEvents = serverEvents.filter(serverEvent => {
         const prevEvent = previousEventsServer.find(prevEvent => prevEvent._id === serverEvent._id);
         return prevEvent && (
@@ -397,8 +397,8 @@ export default function WelcomePage({ navigation, route }) {
       });
   
   //     console.log('New events:', newEvents);
-       console.log('Updated events:', updatedEvents);
-  //     console.log('Deleted events:', deletedEvents);
+      console.log('Updated events:', updatedEvents);
+      console.log('Deleted events:', deletedEvents);
   
   //     // Handle new events
   //     for (const event of newEvents) {
@@ -430,15 +430,15 @@ export default function WelcomePage({ navigation, route }) {
         }
       }
   
-  //     // Handle deleted events
-  //     for (const event of deletedEvents) {
-  //       try {
-  //         console.log('Deleting event from device:', event.activityName);
-  //         await Calendar.deleteEventAsync(event._id);
-  //       } catch (err) {
-  //         console.error('Error deleting event from device:', err);
-  //       }
-  //     }
+      // Handle deleted events
+      for (const event of deletedEvents) {
+        try {
+          console.log('Deleting event from device:', event.activityName);
+          await Calendar.deleteEventAsync(event.eventId);
+        } catch (err) {
+          console.error('Error deleting event from device:', err);
+        }
+      }
   
   //     // Update previous events state
        setPreviousEventsServer(serverEvents);
