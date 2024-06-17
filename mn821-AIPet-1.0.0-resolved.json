@@ -3,7 +3,7 @@
   "info": {
     "title": "Watson CRM API",
     "description": "API documentation for Watson CRM integration",
-    "version": "1.0.0"
+    "version": "0.1.0"
   },
   "servers": [
     {

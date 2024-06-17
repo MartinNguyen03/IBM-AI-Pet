@@ -2,7 +2,7 @@
 const express = require('express');
 const axios = require('axios');
 const mongoose = require('mongoose');
-const AssistantV2 = require('ibm-watson/assistant/v2');
+const AssistantV1 = require('ibm-watson/assistant/v1');
 const { IamAuthenticator } = require('ibm-watson/auth');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -19,28 +19,15 @@ app.use(express.json());
 connectDB();
 
 // connect to Watson Assistant
-const assistant = new AssistantV2({
+const assistant = new AssistantV1({
   version: '2023-06-15',
   authenticator: new IamAuthenticator({
     apikey: process.env.WATSON_ASSISTANT_APIKEY,
   }),
   serviceUrl: process.env.WATSON_ASSISTANT_TTS_URL,
-  assistantId: process.env.WATSON_ASSISTANT_ID,
+  disableSslVerification: true,
 });
 
-// Middleware to create Watson Assistant session
-async function createSession(req, res, next) {
-  try {
-    const sessionResponse = await assistant.createSession({
-      assistantId: process.env.WATSON_ASSISTANT_ID,
-    });
-    req.sessionId = sessionResponse.result.session_id;
-    next();
-  } catch (error) {
-    console.error('Error creating session:', error);
-    res.status(500).send('Error creating session');
-  }
-}
 
 const { User, Trait, Chat, Comms, History, Podcast, Calendar, Exercise, Meal } = require('./db/model.js');
 
@@ -79,7 +66,7 @@ app.get('/history/:userID', async (req, res) => {
   }
 });
 
-app.post('/history', createSession, async (req, res) => {
+app.post('/history',  async (req, res) => {
   const { userID, activityType, traitType } = req.body;
 
   try {
@@ -108,7 +95,7 @@ app.post('/history', createSession, async (req, res) => {
 
 // ---------------------- Users -----------------------------
 
-app.get('/users/:userID', createSession, async (req, res) => {
+app.get('/users/:userID',  async (req, res) => {
   const { userID } = req.params;
 
   try {
