@@ -99,14 +99,14 @@ app.get('/users/:userID',  async (req, res) => {
   const { userID } = req.params;
 
   try {
-    const watsonResponse = await assistant.message({
-      assistantId: process.env.WATSON_ASSISTANT_ID,
-      sessionId: req.sessionId,
-      input: {
-        'message_type': 'text',
-        'text': userID
-      }
-    });
+    // const watsonResponse = await assistant.message({
+    //   assistantId: process.env.WATSON_ASSISTANT_ID,
+    //   sessionId: req.sessionId,
+    //   input: {
+    //     'message_type': 'text',
+    //     'text': userID
+    //   }
+    // });
 
     const apiResponse = await axios.get(`${process.env.API_URL}/users/${userID}`);
 
