@@ -282,6 +282,7 @@ async function getCalendar(userID) {
     console.error('Error fetching calendar:', error);
     throw error;
   }
+}
 
 async function getChat(userID) {
     await Chat.find({ userID }, (err, chat) => {
