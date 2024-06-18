@@ -240,6 +240,22 @@ async function getCalendar(userID) {
   }
 }
 
+async function getDateCalendar(userID, startDate, endDate) {
+  try {
+    const calendar = await Calendar.find({
+      userID,
+      date: {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      }
+    }).exec();
+    return calendar;
+  } catch (error) {
+    console.error('Error fetching calendar:', error);
+    throw error;
+  }
+}
+
 async function getChat(userID) {
   try {
     const chat = await Chat.find({ userID }).exec();
@@ -254,6 +270,17 @@ async function getChat(userID) {
 async function getComms(userID) {
   try {
     const comms = await Comms.find({ userID }).exec();
+    console.log(comms);
+    return comms;
+  } catch (err) {
+    console.error('Error fetching comms:', err);
+    throw err;
+  }
+}
+
+async function getRecipientComms(recipientPhoneNumber, recipientName) {
+  try {
+    const comms = await Comms.find({ recipientPhoneNumber, recipientName }).exec();
     console.log(comms);
     return comms;
   } catch (err) {
@@ -446,8 +473,10 @@ module.exports = {
   getPodcast,
   getTrait,
   getCalendar,
+  getDateCalendar,  
   getChat,
   getComms,
+  getRecipientComms,
   getExercise,
   getMeal,
   getHistory,
