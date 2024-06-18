@@ -148,7 +148,7 @@ app.get('/calendar/:userID', async (req, res) => {
     console.log('get calendar from db');
     const { userID } = req.params;
     const events = await Calendar.find({ userID });
-    console.log('Fetched events:', events); // Add logging to check fetched events
+    //console.log('Fetched events:', events); // Add logging to check fetched events
     res.status(200).json(events);
   } catch (err) {
     console.error('Error fetching calendar events:', err);

@@ -385,10 +385,11 @@ export default function WelcomePage({ navigation, route }) {
         throw new Error('No modifiable calendar found on the device.');
       }
   
-  //     // Compare with previous events
-  //     const newEvents = serverEvents.filter(serverEvent => 
-  //       !previousEvents.some(prevEvent => prevEvent._id === serverEvent._id)
-  //     );
+      // Compare with previous events
+      const newEvents = serverEvents.filter(serverEvent => 
+        serverEvent.eventId === '0' && // Exclude events where eventId is not 0
+        !previousEventsServer.some(prevEvent => prevEvent._id === serverEvent._id)
+      );
       const deletedEvents = previousEventsServer.filter(prevEvent => 
         !serverEvents.some(serverEvent => serverEvent._id === prevEvent._id)
       );
@@ -402,23 +403,23 @@ export default function WelcomePage({ navigation, route }) {
       });
   
   //     console.log('New events:', newEvents);
-      console.log('Updated events:', updatedEvents);
-      console.log('Deleted events:', deletedEvents);
+  //    console.log('Updated events:', updatedEvents);
+  //    console.log('Deleted events:', deletedEvents);
   
-  //     // Handle new events
-  //     for (const event of newEvents) {
-  //       try {
-  //         console.log('Adding event to device:', event.activityName);
-  //         await Calendar.createEventAsync(calendarId, {
-  //           title: event.activityName,
-  //           startDate: new Date(event.startDate),
-  //           endDate: new Date(event.endDate),
-  //           notes: event._id, // Optionally store the server's _id in the device event's notes
-  //         });
-  //       } catch (err) {
-  //         console.error('Error adding event to device:', err);
-  //       }
-  //     }
+      // Handle new events
+      for (const event of newEvents) {
+        try {
+          console.log('Adding event to device:', event.activityName);
+          await Calendar.createEventAsync(calendarId, {
+            title: event.activityName,
+            startDate: new Date(event.startDate),
+            endDate: new Date(event.endDate),
+            notes: 'S', 
+          });
+        } catch (err) {
+          console.error('Error adding event to device:', err);
+        }
+      }
   
       // Handle updated events
       for (const event of updatedEvents) {
