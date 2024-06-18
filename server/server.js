@@ -78,7 +78,7 @@ app.get('/comms/:userID', async (req, res) => {
 
 app.post('/calendar', async (req, res) => {
   try {
-    const { userID, eventId, activityType, startDate, endDate, activityName } = req.body;
+    const { userID, eventId, activityType, startDate, endDate, activityName, notes } = req.body;
     const existingEvent = await Calendar.findOne({ userID, eventId });
 
     if (existingEvent) {
@@ -86,6 +86,7 @@ app.post('/calendar', async (req, res) => {
       existingEvent.startDate = startDate;
       existingEvent.endDate = endDate;
       existingEvent.activityName = activityName;
+      existingEvent.notes = notes 
       await existingEvent.save();
       console.log('Calendar event updated successfully:', eventId);
       res.status(200).send('Calendar event updated successfully');
@@ -96,11 +97,13 @@ app.post('/calendar', async (req, res) => {
         activityType,
         activityName,
         startDate,
-        endDate
+        endDate,
+        notes, 
       });
       await newCalendarEvent.save();
       res.status(201).send('Calendar event saved successfully');
       console.log('Calendar event saved successfully:', eventId);
+      console.log('Calendar event saved notes:', notes === 'S');
     }
   } catch (err) {
     console.error('Error saving calendar event:', err.message);

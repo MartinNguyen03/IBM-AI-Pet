@@ -181,6 +181,7 @@ export default function WelcomePage({ navigation, route }) {
               activityName: event.title,
               startDate: event.startDate,
               endDate: event.endDate,
+              notes: event.notes || ' ', // Include notes field here
             }),
           });
         } catch (err) {
@@ -205,14 +206,16 @@ export default function WelcomePage({ navigation, route }) {
       const events = await Calendar.getEventsAsync([calendarId], new Date(), new Date(new Date().setDate(new Date().getDate() + 30)));
       
       // Compare with previous events
-      const newEvents = events.filter(event => !previousEvents.some(prevEvent => prevEvent.id === event.id));
+      const oldnewEvents = events.filter(event => !previousEvents.some(prevEvent => prevEvent.id === event.id));
+      const newEvents = oldnewEvents.filter(event => event.notes !== 'S')
       const deletedEvents = previousEvents.filter(prevEvent => !events.some(event => event.id === prevEvent.id));
       const updatedEvents = events.filter(event => {
         const prevEvent = previousEvents.find(prevEvent => prevEvent.id === event.id);
         return prevEvent && (
           prevEvent.title !== event.title ||
           prevEvent.startDate !== event.startDate ||
-          prevEvent.endDate !== event.endDate
+          prevEvent.endDate !== event.endDate ||
+          prevEvent.notes !== event.notes 
         );
       });
 
@@ -235,6 +238,7 @@ export default function WelcomePage({ navigation, route }) {
               activityName: event.title,
               startDate: event.startDate,
               endDate: event.endDate,
+              notes: event.notes || ' ', // Include notes field here
             }),
           });
         } catch (err) {
@@ -258,6 +262,7 @@ export default function WelcomePage({ navigation, route }) {
               activityName: event.title,
               startDate: event.startDate,
               endDate: event.endDate,
+              notes: event.notes || ' ', // Include notes field here
             }),
           });
         } catch (err) {
@@ -269,7 +274,7 @@ export default function WelcomePage({ navigation, route }) {
       // Handle deleted events
       for (const event of deletedEvents) {
         try {
-          console.log('Deleting event:', event.title); // Add logging here to debug
+          console.log('Deleting event:', event.title);
           await fetch('http://localhost:5001/calendar', {
             method: 'DELETE',
             headers: {
@@ -281,7 +286,7 @@ export default function WelcomePage({ navigation, route }) {
             }),
           });
         } catch (err) {
-          console.error('Error deleting event from server:', err);
+          console.error('Error deleting event on server:', err);
         }
       }
 
@@ -369,7 +374,7 @@ export default function WelcomePage({ navigation, route }) {
     try {
       const response = await fetch(`http://localhost:5001/calendar/${userID}`);
       const serverEvents = await response.json();
-      console.log('Fetched events from server:', serverEvents);
+      //console.log('Fetched events from server:', serverEvents);
   
       // Get the default calendar ID or another appropriate calendar ID
       const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
@@ -424,6 +429,7 @@ export default function WelcomePage({ navigation, route }) {
             title: event.activityName,
             startDate: new Date(event.startDate),
             endDate: new Date(event.endDate),
+            notes: event.notes || '', 
           });
         } catch (err) {
           console.error('Error updating event on device:', err);
