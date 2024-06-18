@@ -13,14 +13,20 @@ def main():
         while True:
             print("Listening...")
             audio = recognizer.listen(source)
+            print("Processing...")
 
             try:
                 text = recognizer.recognize_google(audio)
                 print(f"Recognized: {text}")
+
+                if text.lower() == "exit":
+                    print("Exiting...")
+                    break
+                
             except sr.UnknownValueError:
                 print("Could not understand the audio")
-            except sr.RequestError as e:
-                print(f"Could not request results; {e}")
+            except sr.RequestError:
+                print("Could not request results; service is down")
 
 if __name__ == "__main__":
     main()
