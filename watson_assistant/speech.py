@@ -4,6 +4,8 @@ from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 import pyaudio
 import speech_recognition as sr
 import pygame
+import warnings
+warnings.filterwarnings('ignore')
 
 def text_to_speech(text):
     authenticator = IAMAuthenticator('M3wUUJKQxq_LJ_vDEfvUhDZewwyJyFqoO1STfdqk9SAF')
