@@ -1,8 +1,8 @@
 import pyaudio
 import speech_recognition as sr
-from watson import handle_chat
 
-def main():
+
+def speechToText():
     recognizer = sr.Recognizer()
     mic = sr.Microphone()
     
@@ -31,5 +31,5 @@ def main():
             except sr.RequestError:
                 print("Could not request results; service is down")
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

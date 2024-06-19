@@ -7,8 +7,8 @@
   },
   "servers": [
     {
-      "url": "localhost:3000",
-      "description": "SwaggerHub API for AIPet"
+      "url": "https://ibm-ai-pet.onrender.com",
+      "description": "Render production server"
     }
   ],
   "paths": {

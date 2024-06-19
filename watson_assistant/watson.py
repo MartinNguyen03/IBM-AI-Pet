@@ -25,6 +25,14 @@ class WatsonAssistant:
         ).get_result()
         self.session_id = session_response['session_id']
     
+    def delete_session(self):
+        if self.session_id:
+            self.assistant.delete_session(
+                assistant_id=self.assistant_id,
+                session_id=self.session_id
+            ).get_result()
+            self.session_id = None
+    
     def handle_chat(self, user_input):
         if self.session_id is None:
             self.create_session()
@@ -50,10 +58,6 @@ class WatsonAssistant:
         # Update context
         if 'context' in response:
             self.context = response['context']
-        
-        # Check for session expiry or requirement to end the session
-        if 'session_id' not in response:
-            self.session_id = None
         
         return message_output
 
