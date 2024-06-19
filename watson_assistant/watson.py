@@ -1,6 +1,10 @@
 import json
+import time
 from ibm_watson import AssistantV2
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+from speech import speechToText, text_to_speech
+import warnings
+warnings.filterwarnings('ignore')
 
 class WatsonAssistant:
     def __init__(self, api_key, service_url, assistant_id):
@@ -33,27 +37,36 @@ class WatsonAssistant:
             ).get_result()
             self.session_id = None
     
-    def handle_chat(self, user_input):
+    def handle_chat(self, user_input, max_retries=5):
         if self.session_id is None:
             self.create_session()
         
-        response = self.assistant.message(
-            assistant_id=self.assistant_id,
-            session_id=self.session_id,
-            input={
-                'message_type': 'text',
-                'text': user_input,
-                'options': {
-                    'return_context': True
-                }
-            },
-            context=self.context
-        ).get_result()
-        
-        if response['output'].get('generic'):
-            message_output = response['output']['generic'][0]['text']
+        for attempt in range(max_retries):
+            try:
+                response = self.assistant.message(
+                    assistant_id=self.assistant_id,
+                    session_id=self.session_id,
+                    input={
+                        'message_type': 'text',
+                        'text': user_input,
+                        'options': {
+                            'return_context': True
+                        }
+                    },
+                    context=self.context
+                ).get_result()
+                
+                if 'output' in response and 'generic' in response['output'] and len(response['output']['generic']) > 0:
+                    message_output = response['output']['generic'][0]['text']
+                    break
+            except Exception as e:
+                print(f"Error occurred: {e}")
+                message_output = "No response from Watson Assistant."
+
+            # Wait before retrying
+            time.sleep(1)
         else:
-            message_output = "No response from Watson Assistant."
+            message_output = "Failed to get a valid response from Watson Assistant after multiple attempts."
 
         # Update context
         if 'context' in response:
@@ -61,22 +74,22 @@ class WatsonAssistant:
         
         return message_output
 
-# Initialize the Watson Assistant
+
 api_key = 'CNMroTYvvNhmlODBsgfGDXt7oDU-_83_-4KoMm6elTRG'
 service_url = 'https://api.au-syd.assistant.watson.cloud.ibm.com/instances/698ca409-f562-471e-a74b-a2efdd5e3259'
-assistant_id = '57bdddd6-b3a3-452c-becd-a8b3ed689e9d'  # Draft Environment ID
+assistant_id = '57bdddd6-b3a3-452c-becd-a8b3ed689e9d'
 
-watson_assistant = WatsonAssistant(api_key, service_url, assistant_id)
+watsonAssistant = WatsonAssistant(api_key, service_url, assistant_id)
 
 # Example of multi-turn conversation
-user_input = "test user"
-while user_input.lower() != "exit":
-    response = watson_assistant.handle_chat(user_input)
-    print(f"Watson Response: {response}")
-    user_input = input("Your response: ")
-
-# Properly close the session when done
-watson_assistant.assistant.delete_session(
-    assistant_id=assistant_id,
-    session_id=watson_assistant.session_id
-).get_result()
+try:
+    while True:
+        user_input = speechToText()
+        if user_input.lower() == "exit":
+            break
+        response = watsonAssistant.handle_chat(user_input)
+        print(f"Watson Response: {response}")
+        text_to_speech(response)
+finally:
+    # Properly close the session when done
+    watsonAssistant.delete_session()
