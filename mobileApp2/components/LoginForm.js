@@ -1,7 +1,8 @@
 //ibm-ai-pet/mobileApp2/components/LoginForm.js
 import React, { useState, useCallback } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ImageBackground, TouchableOpacity  } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function LoginForm({ navigation }) {
   const [username, setUsername] = useState('');
@@ -40,46 +41,86 @@ export default function LoginForm({ navigation }) {
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <Button title="Login" onPress={handleLogin} />
-    </View>
+    <LinearGradient
+      colors={['#87CEEB', '#ffffff']}
+      style={styles.background}
+    >
+      <View style={styles.container}>
+        <Text style={styles.title}>Login to Athena</Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Username"
+            value={username}
+            onChangeText={setUsername}
+            placeholderTextColor="#808080"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            placeholderTextColor="#808080"
+            autoCapitalize="none"
+          />
+        </View>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
+      </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
+    backgroundColor: 'transparent',
     padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
   },
   title: {
     fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#333333',
+  },
+  inputContainer: {
     marginBottom: 20,
   },
   input: {
     height: 40,
-    borderColor: 'gray',
+    borderColor: '#d3d3d3',
     borderWidth: 1,
-    marginBottom: 20,
+    borderRadius: 5,
     paddingHorizontal: 10,
+    marginBottom: 10,
+    fontSize: 16,
+    backgroundColor: '#ffffff',
+  },
+  button: {
+    backgroundColor: '#1e90ff',
+    paddingVertical: 12,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#ffffff',
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
-
-
-
-
-
-//ai
-//pet
