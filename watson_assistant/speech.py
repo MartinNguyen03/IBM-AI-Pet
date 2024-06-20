@@ -63,5 +63,3 @@ def speechToText():
             except sr.RequestError:
                 print("Could not request results; service is down")
 
-# # Example usage
-# text_to_speech('Hello World!')
