@@ -1,9 +1,10 @@
 {
     "emotions":
     {
-        "happy/sad": true,
+        "happy": false,
         "angry": false,
-        "surprised": false,
-        "disgusted": false
+        "sad": false,
+        "love": false,
+        "bored": false
     }
 }
