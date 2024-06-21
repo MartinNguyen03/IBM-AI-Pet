@@ -220,10 +220,10 @@ async function deleteCalendar(userID, calendarID) {
 
 /* ------------------- GET FUNCTIONS ------------------- */
 
-async function getUser(userID, username) {
+async function getUser(username,password) {
   try {
     regex = new RegExp(username, 'i'); // 'i' flag for case-insensitive matching
-    const user = await User.find({ _id: userID, username: regex}).exec(); // Using .exec() to get a promise
+    const user = await User.find({username: regex, password: password}).exec(); // Using .exec() to get a promise
     return user;
   } catch (error) {
     console.error('Error fetching user:', error);
@@ -233,7 +233,7 @@ async function getUser(userID, username) {
 
 async function getAllUsers(userID) {
   try {
-    const users = await User.findById({ userID }).exec();
+    const users = await User.find().exec();
     return users;
   } catch (error) {
     console.error('Error fetching user:', error);
