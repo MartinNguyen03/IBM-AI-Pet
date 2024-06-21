@@ -43,7 +43,22 @@ app.get('/user', async (req, res) => {
   const { userID } = req.query;
 
   try {
-    const user = await dbHelpers.getUser(userID);
+    const user = await dbHelpers.getAllUser(userID);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
+  }
+});
+
+app.get('/user/:username', async (req, res) => {
+  const { userID } = req.query;
+  const { username } = req.params;
+  try {
+    const user = await dbHelpers.getUser(userID, username);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -104,15 +119,57 @@ app.post('/history', async (req, res) => {
 });
 
 // -----------------CALENDAR-----------------
+
 app.get('/calendar', async (req, res) => {
   const { userID } = req.query;
 
   try {
-    const calendar = await dbHelpers.getCalendar(userID);
+    const calendar = await dbHelpers.getAllCalendar(userID);
     res.json(calendar);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'An error occurred while retrieving calendar entries.' });
+  }
+});
+
+app.get('/calendar/:activityName', async (req, res) => {
+  const { userID } = req.query;
+  const { activityName } = req.params;
+  try {
+    const calendar = await dbHelpers.getCalendar(userID, activityName);
+    res.json(calendar);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while retrieving calendar entries.' });
+  }
+});
+
+app.get('/calendar/dates', async (req, res) => {
+  const { userID, startDate, endDate } = req.query;
+
+  try {
+    const calendar = await dbHelpers.getCalendarDates(userID, startDate, endDate);
+    res.json(calendar);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while retrieving calendar entries.' });
+  }
+});
+
+app.get('/calendar/today', async (req, res) => {
+  const { userID } = req.query;
+
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const calendar = await dbHelpers.getDateCalendar(userID, today, tomorrow);
+    res.json(calendar);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while retrieving today\'s calendar entries.' });
   }
 });
 
@@ -140,26 +197,7 @@ app.delete('/calendar', async (req, res) => {
   }
 });
 
-app.get('/calendar/today', async (req, res) => {
-  const { userID } = req.query;
 
-  try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const calendar = await Calendar.find({
-      userID: userID,
-      startDate: { $gte: today, $lt: tomorrow }
-    }).exec();
-
-    res.json(calendar);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'An error occurred while retrieving today\'s calendar entries.' });
-  }
-});
 
 app.put('/calendar/:eventId', async (req, res) => {
   const { eventId } = req.params;
@@ -213,7 +251,19 @@ app.get('/comms', async (req, res) => {
   const { userID } = req.query;
 
   try {
-    const comms = await dbHelpers.getComms(userID);
+    const comms = await dbHelpers.getAllComms(userID);
+    res.json(comms);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while retrieving comms entries.' });
+  }
+});
+
+app.get('/comms/:recipientName', async (req, res) => {
+  const { userID } = req.query;
+  const { recipientName } = req.params;
+  try {
+    const comms = await dbHelpers.getRecipientComms(userID, recipientName);
     res.json(comms);
   } catch (error) {
     console.error(error);
@@ -238,11 +288,24 @@ app.get('/exercise', async (req, res) => {
   const { userID } = req.query;
 
   try {
-    const exercise = await dbHelpers.getExercise(userID);
+    const exercise = await dbHelpers.getAllExercise(userID);
     res.json(exercise);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'An error occurred while retrieving exercise entries.' });
+  }
+});
+
+app.get('/exercise/:exerciseName', async (req, res) => {
+  const { userID } = req.query;
+  const { exerciseName } = req.params;
+
+  try {
+    const exercise = await dbHelpers.getExercise(userID, exerciseName);
+    res.json(exercise);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while retrieving exercise entry.' });
   }
 });
 
@@ -277,11 +340,24 @@ app.get('/meal', async (req, res) => {
   const { userID } = req.query;
 
   try {
-    const meals = await dbHelpers.getMeal(userID);
+    const meals = await dbHelpers.getAllMeal(userID);
     res.json(meals);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'An error occurred while retrieving meal entries.' });
+  }
+});
+
+app.get('/meal/:mealName', async (req, res) => {
+  const { userID } = req.query;
+  const { mealName } = req.params;
+
+  try {
+    const meal = await dbHelpers.getMeal(userID, mealName);
+    res.json(meal);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while retrieving meal entry.' });
   }
 });
 
@@ -316,11 +392,24 @@ app.get('/podcast', async (req, res) => {
   const { userID } = req.query;
 
   try {
-    const podcasts = await dbHelpers.getPodcast(userID);
+    const podcasts = await dbHelpers.getAllPodcast(userID);
     res.json(podcasts);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'An error occurred while retrieving podcast entries.' });
+  }
+});
+
+app.get('/podcast/:title', async (req, res) => {
+  const { userID } = req.query;
+  const { title } = req.params;
+
+  try {
+    const podcast = await dbHelpers.getPodcastName(userID, title);
+    res.json(podcast);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while retrieving podcast entry.' });
   }
 });
 
@@ -360,6 +449,19 @@ app.get('/trait', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'An error occurred while retrieving traits.' });
+  }
+});
+
+app.get('/trait/:traitType', async (req, res) => {
+  const { userID } = req.query;
+  const { traitType } = req.params;
+
+  try {
+    const trait = await dbHelpers.getTraitType(userID, traitType);
+    res.json(trait);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while retrieving trait.' });
   }
 });
 

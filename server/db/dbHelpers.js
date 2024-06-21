@@ -220,9 +220,10 @@ async function deleteCalendar(userID, calendarID) {
 
 /* ------------------- GET FUNCTIONS ------------------- */
 
-async function getUser(userID) {
+async function getUser(userID, username) {
   try {
-    const user = await User.findById(userID).exec(); // Using .exec() to get a promise
+    regex = new RegExp(username, 'i'); // 'i' flag for case-insensitive matching
+    const user = await User.find({ _id: userID, username: regex}).exec(); // Using .exec() to get a promise
     return user;
   } catch (error) {
     console.error('Error fetching user:', error);
@@ -230,7 +231,28 @@ async function getUser(userID) {
   }
 }
 
-async function getCalendar(userID) {
+async function getAllUsers(userID) {
+  try {
+    const users = await User.findById({ userID }).exec();
+    return users;
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    throw error;
+  }
+}
+
+async function getCalendar(userID, activityName) {
+  try {
+    const regex = new RegExp(activityName, 'i'); // 'i' flag for case-insensitive matching
+    const calendar = await Calendar.find({ userID: userID, activityName: regex }).exec();
+    return calendar;
+  } catch (error) {
+    console.error('Error fetching calendar:', error);
+    throw error;
+  }
+}
+
+async function getAllCalendars(userID) {
   try {
     const calendar = await Calendar.find({ userID }).exec();
     return calendar;
@@ -267,7 +289,7 @@ async function getChat(userID) {
   }
 }
 
-async function getComms(userID) {
+async function getAllComms(userID) {
   try {
     const comms = await Comms.find({ userID }).exec();
     console.log(comms);
@@ -278,9 +300,10 @@ async function getComms(userID) {
   }
 }
 
-async function getRecipientComms(recipientPhoneNumber, recipientName) {
+async function getRecipientComms(userID, recipientName) {
   try {
-    const comms = await Comms.find({ recipientPhoneNumber, recipientName }).exec();
+    regex = new RegExp(recipientName, 'i'); // 'i' flag for case-insensitive matching
+    const comms = await Comms.find({ userID: userID,recipientName: regex }).exec();
     console.log(comms);
     return comms;
   } catch (err) {
@@ -289,7 +312,18 @@ async function getRecipientComms(recipientPhoneNumber, recipientName) {
   }
 }
 
-async function getExercise(userID) {
+async function getExercise(userID, exerciseName) {
+  try {
+    const regex = new RegExp(exerciseName, 'i'); // 'i' flag for case-insensitive matching
+    const exercise = await Exercise.find({ userID: userID, exerciseName: regex }).exec();
+    console.log(exercise);
+    return exercise;
+  } catch (err) {
+    console.error('Error fetching exercise:', err);
+    throw err;
+  }
+}
+async function getAllExercise(userID) {
   try {
     const exercise = await Exercise.find({ userID }).exec();
     console.log(exercise);
@@ -300,7 +334,19 @@ async function getExercise(userID) {
   }
 }
 
-async function getMeal(userID) {
+async function getMeal(userID, mealName) {
+  try {
+    const regex = new RegExp(mealName, 'i'); // 'i' flag for case-insensitive matching
+    const meal = await Meal.find({ userID: userID, mealName: regex }).exec();
+    console.log(meal);
+    return meal;
+  } catch (err) {
+    console.error('Error fetching meal:', err);
+    throw err;
+  }
+}
+
+async function getAllMeal(userID) {
   try {
     const meal = await Meal.find({ userID }).exec();
     console.log(meal);
@@ -311,7 +357,19 @@ async function getMeal(userID) {
   }
 }
 
-async function getPodcast(userID) {
+async function getPodcastName(userID, title) {
+  try {
+    const regex = new RegExp(title, 'i'); // 'i' flag for case-insensitive matching
+    const podcast = await Podcast.find({ userID: userID, title: regex }).exec();
+    console.log(podcast);
+    return podcast;
+  } catch (err) {
+    console.error('Error fetching podcast:', err);
+    throw err;
+  }
+}
+
+async function getAllPodcast(userID) {
   try {
     const podcast = await Podcast.find({ userID }).exec();
     console.log(podcast);
@@ -322,9 +380,21 @@ async function getPodcast(userID) {
   }
 }
 
-async function getTrait(userID) {
+async function getAllTrait(userID) {
   try {
     const trait = await Trait.find({ userID }).exec();
+    console.log(trait);
+    return trait;
+  } catch (err) {
+    console.error('Error fetching trait:', err);
+    throw err;
+  }
+}
+
+async function getTrait(userID, traitType) {
+  try {
+    const regex = new RegExp(traitType, 'i'); // 'i' flag for case-insensitive matching
+    const trait = await Trait.find({ userID: userID, traitType: regex }).exec();
     console.log(trait);
     return trait;
   } catch (err) {
@@ -349,12 +419,13 @@ async function getHistory(userID) {
 */
 async function getExerciseTrait(userID, traitType) {
   try {
-    let exercises = await Exercise.find({ userID, exerciseTrait: traitType }).exec();
+    const regex = new RegExp(traitType, 'i'); // 'i' flag for case-insensitive matching
+    let exercises = await Exercise.find({ userID, exerciseTrait: regex }).exec();
     if (!exercises) {
       console.log('No exercise found');
       return;
     }
-    let trait = await Trait.findOne({ traitType }).exec();
+    let trait = await Trait.findOne({ traitType: regex }).exec();
     if (!trait) {
       console.log('No trait found for this exercise');
       return;
@@ -372,12 +443,13 @@ async function getExerciseTrait(userID, traitType) {
  */
 async function getMealTrait(userID, traitType) {
   try {
-    let meals = await Meal.find({ userID, mealTrait: traitType }).exec();
+    const regex = new RegExp(traitType, 'i'); // 'i' flag for case-insensitive matching
+    let meals = await Meal.find({ userID, mealTrait: regex }).exec();
     if (!meals) {
       console.log('No meal found');
       return;
     }
-    let trait = await Trait.findOne({ traitType }).exec();
+    let trait = await Trait.findOne({ regex }).exec();
     if (!trait) {
       console.log('No trait found for this meal');
       return;
@@ -395,12 +467,13 @@ async function getMealTrait(userID, traitType) {
   */
 async function getPodcastTrait(userID, traitType) {
   try {
-    let podcasts = await Podcast.find({ userID, podcastTrait: traitType }).exec();
+    const regex = new RegExp(traitType, 'i'); // 'i' flag for case-insensitive matching
+    let podcasts = await Podcast.find({ userID, podcastTrait: regex }).exec();
     if (!podcasts) {
       console.log('No podcast found');
       return;
     }
-    let trait = await Trait.findOne({ traitType }).exec();
+    let trait = await Trait.findOne({ regex }).exec();
     if (!trait) {
       console.log('No trait found for this podcast');
       return;
@@ -418,7 +491,8 @@ async function getPodcastTrait(userID, traitType) {
   */
 async function getTraitDesirability(userID, traitType) {
   try {
-    const trait = await Trait.findOne({ userID, traitType }).exec();
+    const regex = new RegExp(traitType, 'i'); // 'i' flag for case-insensitive matching
+    const trait = await Trait.findOne({ userID, regex }).exec();
     if (trait) {
       console.log(trait.desirability);
       return trait.desirability;
@@ -469,23 +543,29 @@ module.exports = {
   addExercise,
   addMeal,
   addPodcast,
+  addTrait,
+  deleteUser,
+  deleteCalendar,
   getUser,
-  getPodcast,
-  getTrait,
+  getAllUsers,
   getCalendar,
-  getDateCalendar,  
+  getAllCalendars,
+  getDateCalendar,
   getChat,
-  getComms,
+  getAllComms,
   getRecipientComms,
   getExercise,
+  getAllExercise,
   getMeal,
+  getAllMeal,
+  getPodcastName,
+  getAllPodcast,
+  getAllTrait,
+  getTrait,
   getHistory,
   getExerciseTrait,
   getMealTrait,
   getPodcastTrait,
   getTraitDesirability,
-  addTrait,
-  deleteUser,
-  deleteCalendar,
   updateTrait
 };

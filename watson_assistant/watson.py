@@ -74,26 +74,31 @@ class WatsonAssistant:
         
         return message_output
 
+def chatbot():
 
-api_key = 'CNMroTYvvNhmlODBsgfGDXt7oDU-_83_-4KoMm6elTRG'
-service_url = 'https://api.au-syd.assistant.watson.cloud.ibm.com/instances/698ca409-f562-471e-a74b-a2efdd5e3259'
-assistant_id = '57bdddd6-b3a3-452c-becd-a8b3ed689e9d'
+    text_to_speech('Hello, I am Athena, your personal assistant. How can I help you today?')
 
-watsonAssistant = WatsonAssistant(api_key, service_url, assistant_id)
+    api_key = 'CNMroTYvvNhmlODBsgfGDXt7oDU-_83_-4KoMm6elTRG'
+    service_url = 'https://api.au-syd.assistant.watson.cloud.ibm.com/instances/698ca409-f562-471e-a74b-a2efdd5e3259'
+    assistant_id = '57bdddd6-b3a3-452c-becd-a8b3ed689e9d'
 
-# Example of multi-turn conversation
-try:
-    while True:
-        user_input = speechToText()
-        if user_input.lower() == "exit":
-            break
-        response = watsonAssistant.handle_chat(user_input)
-        print(f"Watson Response: {response}")
-        text_to_speech(response)
-        if 'search for' in response.lower():
-            response = watsonAssistant.handle_chat("continue search")
+    watsonAssistant = WatsonAssistant(api_key, service_url, assistant_id)
+
+    # Example of multi-turn conversation
+    try:
+        while True:
+            user_input = speechToText()
+            if user_input.lower() == "exit":
+                break
+            response = watsonAssistant.handle_chat(user_input)
             print(f"Watson Response: {response}")
             text_to_speech(response)
-finally:
-    # Properly close the session when done
-    watsonAssistant.delete_session()
+            if 'search for' in response.lower() or 'searching for' in response.lower() or 'here are' in response.lower() or 'lets have a look' in response.lower():
+                response = watsonAssistant.handle_chat("continue search")
+                print(f"Watson Response: {response}")
+                text_to_speech(response)
+    finally:
+        # Properly close the session when done
+        watsonAssistant.delete_session()
+
+chatbot()
