@@ -3,8 +3,13 @@ import time
 from ibm_watson import AssistantV2
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from speech import speechToText, text_to_speech
+from dotenv import load_dotenv
+import os
 import warnings
 warnings.filterwarnings('ignore')
+load_dotenv(
+    dotenv_path= os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+)
 
 class WatsonAssistant:
     def __init__(self, api_key, service_url, assistant_id):
@@ -78,10 +83,11 @@ def chatbot():
 
     text_to_speech('Hello, I am Athena, your personal assistant. How can I help you today?')
 
-    api_key = 'CNMroTYvvNhmlODBsgfGDXt7oDU-_83_-4KoMm6elTRG'
-    service_url = 'https://api.au-syd.assistant.watson.cloud.ibm.com/instances/698ca409-f562-471e-a74b-a2efdd5e3259'
-    assistant_id = '57bdddd6-b3a3-452c-becd-a8b3ed689e9d'
-
+    api_key = os.getenv('WATSON_ASSISTANT_APIKEY')
+    service_url = os.getenv('WATSON_ASSISTANT_TTS_URL')
+    assistant_id = os.getenv('DRAFT_ENV_ID')
+    userID = os.getenv('USER_ID')
+    
     watsonAssistant = WatsonAssistant(api_key, service_url, assistant_id)
 
     # Example of multi-turn conversation
