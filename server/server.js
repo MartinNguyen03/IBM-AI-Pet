@@ -139,7 +139,7 @@ app.get('/calendar', async (req, res) => {
   const { userID } = req.query;
 
   try {
-    const calendar = await dbHelpers.getAllCalendar(userID);
+    const calendar = await dbHelpers.getAllCalendars(userID);
     res.json(calendar);
   } catch (error) {
     console.error(error);
