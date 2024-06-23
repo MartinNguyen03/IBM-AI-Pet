@@ -43,23 +43,32 @@ async function addUser(username, password, name, phoneNumber, longitude, latitud
   }
 }
 
-async function addCalendar(userID, activityName, activityType, startDate, endDate) {
+async function addCalendar(userID, eventId, activityName, activityType, startDate, endDate, notes) {
   try {
-    const user = await User.findById(userID).exec();
-    if (user) {
-      const newCalendar = new Calendar({
+    const existingEvent = await Calendar.findOne({ userID, eventId }); // Fixed variable name to match parameter
+
+    if (existingEvent) {
+      existingEvent.activityType = activityType;
+      existingEvent.startDate = startDate;
+      existingEvent.endDate = endDate;
+      existingEvent.activityName = activityName;
+      existingEvent.notes = notes; // Added missing semicolon
+      await existingEvent.save();
+      console.log('Calendar event updated successfully:', eventID);
+      // Removed res.status line to avoid reference error and maintain consistency with console logging
+    } else {
+      const newCalendarEvent = new Calendar({
         userID,
-        activityName,
+        eventId, // Fixed variable name to match parameter
         activityType,
+        activityName,
         startDate,
         endDate,
+        notes,
       });
-
-      await newCalendar.save();
+      await newCalendarEvent.save();
       console.log('Calendar created successfully!');
       await addHistory(userID, 'Calendar Entry Created');
-    } else {
-      console.log('User not found!');
     }
   } catch (err) {
     console.error('Error adding calendar:', err);
@@ -89,20 +98,22 @@ async function addChat(userID, chatTrait) {
 
 async function addComms(userID, recipientPhoneNumber, recipientName) {
   try {
-    const user = await User.findById(userID).exec();
-    if (user) {
+    const existingContact = await Comms.findOne({ userID, recipientName });
+
+    if (existingContact) {
+      existingContact.recipientPhoneNumber = recipientPhoneNumber;
+      await existingContact.save();
+      console.log('Comms updated successfully'); // Changed from res.status to console.log for consistency
+    } else {
       const newComms = new Comms({
         userID,
-        recipientPhoneNumber,
         recipientName,
-        timestamp: Date.now(), //dateSuggested
+        recipientPhoneNumber,
+        timestamp: Date.now(),
       });
-
       await newComms.save();
       console.log('Comms created successfully!');
       await addHistory(userID, 'Comms Entry Created');
-    } else {
-      console.log('User not found!');
     }
   } catch (err) {
     console.error('Error adding comms:', err);
@@ -208,9 +219,9 @@ async function deleteUser(userID) {
   }
 }
 
-async function deleteCalendar(userID, calendarID) {
+async function deleteCalendar(userID, eventId) {
   try {
-    await Calendar.deleteOne({ userID, _id: calendarID });
+    await Calendar.deleteOne({ userID:userID, eventId: eventId });
     console.log('Calendar entry deleted successfully!');
     await addHistory(userID, 'Calendar Entry Deleted');
   } catch (err) {
@@ -231,7 +242,7 @@ async function getUser(username,password) {
   }
 }
 
-async function getAllUsers(userID) {
+async function getAllUsers() {
   try {
     const users = await User.find().exec();
     return users;

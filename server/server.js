@@ -40,10 +40,8 @@ app.get('/', (req, res) => {
 
 // -----------------USER-----------------
 app.get('/user', async (req, res) => {
-  const { userID } = req.query;
-
   try {
-    const user = await dbHelpers.getAllUser(userID);
+    const user = await dbHelpers.getAllUsers();
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -53,6 +51,8 @@ app.get('/user', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while processing your request.' });
   }
 });
+//match user-users
+
 
 app.get('/user/:username', async (req, res) => {
   const { userID } = req.query;
@@ -66,6 +66,21 @@ app.get('/user/:username', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'An error occurred while processing your request.' });
+  }
+});
+
+// UPDATE USER LOCATION
+app.post('/user/location', async (req, res) => {
+  try {
+    const { userID, latitude, longitude } = req.body;
+    await User.findByIdAndUpdate(userID, {
+      location_latitude: latitude,
+      location_longitude: longitude,
+    });
+    res.status(200).send('Location updated successfully');
+  } catch (err) {
+    console.error('Error updating location:', err.message);
+    res.status(500).send('Server Error');
   }
 });
 
@@ -174,10 +189,10 @@ app.get('/calendar/today', async (req, res) => {
 });
 
 app.post('/calendar', async (req, res) => {
-  const { userID, activityName, activityType, startDate, endDate } = req.body;
+  const { userID, eventId, activityType, startDate, endDate, activityName, notes } = req.body;
 
   try {
-    await dbHelpers.addCalendar(userID, activityName, activityType, startDate, endDate);
+    await dbHelpers.addCalendar(userID, eventId, activityName, activityType, startDate, endDate, notes);
     res.status(200).json({ message: 'Calendar entry created successfully' });
   } catch (error) {
     console.error(error);
@@ -186,10 +201,10 @@ app.post('/calendar', async (req, res) => {
 });
 
 app.delete('/calendar', async (req, res) => {
-  const { userID, calendarID } = req.query;
+  const { userID, eventId } = req.query;
 
   try {
-    await dbHelpers.deleteCalendar(userID, calendarID);
+    await dbHelpers.deleteCalendar(userID, eventId);
     res.status(200).json({ message: 'Calendar entry deleted successfully' });
   } catch (error) {
     console.error(error);
@@ -272,7 +287,7 @@ app.get('/comms/:recipientName', async (req, res) => {
 });
 
 app.post('/comms', async (req, res) => {
-  const { userID, recipientPhoneNumber, recipientName } = req.body;
+  const { userID, recipientName, recipientPhoneNumber } = req.body;
 
   try {
     await dbHelpers.addComms(userID, recipientPhoneNumber, recipientName);
