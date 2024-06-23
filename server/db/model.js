@@ -101,7 +101,7 @@ const CalendarSchema = new Schema({
   },
   notes: {
     type: String,
-    required: true,
+    required: true
   }
 }, { collection: 'Calendar' });
 
