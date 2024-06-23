@@ -74,8 +74,8 @@ app.post('/user/location', async (req, res) => {
   try {
     const { userID, latitude, longitude } = req.body;
     await User.findByIdAndUpdate(userID, {
-      location_latitude: latitude,
-      location_longitude: longitude,
+      locLatitude: latitude,
+      locLongitude: longitude,
     });
     res.status(200).send('Location updated successfully');
   } catch (err) {
