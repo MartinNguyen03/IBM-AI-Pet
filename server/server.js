@@ -201,7 +201,7 @@ app.post('/calendar', async (req, res) => {
 });
 
 app.delete('/calendar', async (req, res) => {
-  const { userID, eventId } = req.query;
+  const { userID, eventId } = req.body;
 
   try {
     await dbHelpers.deleteCalendar(userID, eventId);

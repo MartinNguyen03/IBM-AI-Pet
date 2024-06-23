@@ -45,21 +45,20 @@ async function addUser(username, password, name, phoneNumber, longitude, latitud
 
 async function addCalendar(userID, eventId, activityName, activityType, startDate, endDate, notes) {
   try {
-    const existingEvent = await Calendar.findOne({ userID, eventId }); // Fixed variable name to match parameter
+    const existingEvent = await Calendar.findOne({ userID, eventId });
 
     if (existingEvent) {
       existingEvent.activityType = activityType;
       existingEvent.startDate = startDate;
       existingEvent.endDate = endDate;
       existingEvent.activityName = activityName;
-      existingEvent.notes = notes; // Added missing semicolon
+      existingEvent.notes = notes;
       await existingEvent.save();
-      console.log('Calendar event updated successfully:', eventID);
-      // Removed res.status line to avoid reference error and maintain consistency with console logging
+      console.log('Calendar event updated successfully:', eventId);
     } else {
       const newCalendarEvent = new Calendar({
         userID,
-        eventId, // Fixed variable name to match parameter
+        eventId,
         activityType,
         activityName,
         startDate,
@@ -74,6 +73,7 @@ async function addCalendar(userID, eventId, activityName, activityType, startDat
     console.error('Error adding calendar:', err);
   }
 }
+
 
 async function addChat(userID, chatTrait) {
   try {
@@ -221,7 +221,7 @@ async function deleteUser(userID) {
 
 async function deleteCalendar(userID, eventId) {
   try {
-    await Calendar.deleteOne({ userID:userID, eventId: eventId });
+    await Calendar.deleteMany({ userID: userID, eventId: eventId });
     console.log('Calendar entry deleted successfully!');
     await addHistory(userID, 'Calendar Entry Deleted');
   } catch (err) {
