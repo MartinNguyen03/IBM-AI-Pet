@@ -506,10 +506,10 @@ app.get('/trait/desirability', async (req, res) => {
 });
 
 app.put('/trait/desirability', async (req, res) => {
-  const { userID, traitID, operation } = req.query;
+  const { userID, traitType, operation } = req.query;
 
   try {
-    await dbHelpers.updateTrait(userID, traitID, operation);
+    await dbHelpers.updateTrait(userID, traitType, operation);
     res.status(200).json({ message: 'Trait desirability updated successfully' });
   } catch (error) {
     console.error(error);

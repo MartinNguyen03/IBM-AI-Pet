@@ -521,9 +521,9 @@ async function getTraitDesirability(userID, traitType) {
 /* This script is used to update a trait's desirability in the database.
 * updateTrait <userID> <traitID> <operation>
 */
-async function updateTrait(userID, traitID, operation) {
+async function updateTrait(userID, traitType, operation) {
   try {
-    const trait = await Trait.findById(traitID).exec();
+    const trait = await Trait.findOne(traitType).exec();
     if (trait) {
       if (operation === '+') {
         trait.desirability = Math.min(trait.desirability + 0.1, 1);
