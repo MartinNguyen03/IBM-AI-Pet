@@ -16,7 +16,6 @@ class WatsonAssistant:
         self.assistant_id = assistant_id
         self.session_id = None
         self.context = {}
-        self.userID = '665da7e72fb29f828bac1fe0'
         self.assistant = self.create_assistant(api_key, service_url)
     
     def create_assistant(self, api_key, service_url):

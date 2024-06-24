@@ -12,6 +12,10 @@ from dotenv import load_dotenv
 import os
 warnings.filterwarnings('ignore')
 
+load_dotenv(
+    dotenv_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+)
+
 class WatsonAssistant:
     def __init__(self):
         api_key = os.getenv('WATSON_ASSISTANT_APIKEY')
@@ -64,9 +68,20 @@ class WatsonAssistant:
                     context=self.context
                 ).get_result()
                 
-                if 'output' in response and 'generic' in response['output'] and len(response['output']['generic']) > 0:
-                    message_output = response['output']['generic'][0]['text']
-                    break
+                if 'output' in response and 'generic' in response['output']:
+                    # Find the first response with 'text' field
+                    message_output = None
+                    for generic_response in response['output']['generic']:
+                        if 'text' in generic_response:
+                            message_output = generic_response['text']
+                            break
+                    
+                    if message_output is None:
+                        message_output = "No valid text response from Watson Assistant."
+                else:
+                    message_output = "Unexpected response format from Watson Assistant."
+
+                break
             except Exception as e:
                 print(f"Error occurred: {e}")
                 message_output = "No response from Watson Assistant."
@@ -141,23 +156,23 @@ class WatsonAssistant:
                
 
 
-# For text-based chatbot
-def textbot():
-    api_key = 'CNMroTYvvNhmlODBsgfGDXt7oDU-_83_-4KoMm6elTRG'
-    service_url = 'https://api.au-syd.assistant.watson.cloud.ibm.com/instances/698ca409-f562-471e-a74b-a2efdd5e3259'
-    assistant_id = '57bdddd6-b3a3-452c-becd-a8b3ed689e9d'
+# # For text-based chatbot
+# def textbot():
+#     api_key = 'CNMroTYvvNhmlODBsgfGDXt7oDU-_83_-4KoMm6elTRG'
+#     service_url = 'https://api.au-syd.assistant.watson.cloud.ibm.com/instances/698ca409-f562-471e-a74b-a2efdd5e3259'
+#     assistant_id = '57bdddd6-b3a3-452c-becd-a8b3ed689e9d'
 
-    watsonAssistant = WatsonAssistant(api_key, service_url, assistant_id)
+#     watsonAssistant = WatsonAssistant(api_key, service_url, assistant_id)
 
-    try:
-        while True:
-            user_input = input("You: ")
-            if user_input.lower() == "exit":
-                break
-            response = watsonAssistant.handle_chat(user_input)
-            print(f"Watson Response: {response}")
-    finally:
-        # Properly close the session when done
-        watsonAssistant.delete_session()
+#     try:
+#         while True:
+#             user_input = input("You: ")
+#             if user_input.lower() == "exit":
+#                 break
+#             response = watsonAssistant.handle_chat(user_input)
+#             print(f"Watson Response: {response}")
+#     finally:
+#         # Properly close the session when done
+#         watsonAssistant.delete_session()
 
-# chatbot()
+# # chatbot()

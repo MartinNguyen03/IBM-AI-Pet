@@ -111,7 +111,7 @@ class Athena(pygame.sprite.Sprite):
                 user_input = self.watson.speechToText()
                 if user_input.lower() == "exit":
                     break
-                elif re.match(r'^athena\b', user_input, re.IGNORECASE):
+                elif re.match(r'^athena\b', user_input, re.IGNORECASE): # Check if the user is talking to Athena (toggle athena)
                     self.watson.textToSpeech("Listening...")          
                     response = self.watson.handleChat(user_input)
                     print(f"Watson Response: {response}")
