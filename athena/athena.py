@@ -1,4 +1,5 @@
 import pygame, sys, os, cv2
+import re
 import numpy as np
 import tensorflow as tf
 from os import environ
@@ -107,13 +108,15 @@ class Athena(pygame.sprite.Sprite):
         # Example of multi-turn conversation
         try:
             while True:
-                user_input = self.watson.speech_to_text()
+                user_input = self.watson.speechToText()
                 if user_input.lower() == "exit":
                     break
-                response = self.watson.handle_chat(user_input)
-                print(f"Watson Response: {response}")
-                self.updateSentiment(user_input)
-                self.watson.text_to_speech(response)
+                elif re.match(r'^athena\b', user_input, re.IGNORECASE):
+                    self.watson.textToSpeech("Listening...")          
+                    response = self.watson.handleChat(user_input)
+                    print(f"Watson Response: {response}")
+                    self.updateSentiment(user_input)
+                    self.watson.textToSpeech(response)
         finally:
             # Properly close the session when done
             self.watson.delete_session()
