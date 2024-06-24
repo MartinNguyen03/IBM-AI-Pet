@@ -231,23 +231,31 @@ async function deleteCalendar(userID, eventId) {
 
 /* ------------------- GET FUNCTIONS ------------------- */
 
-async function getUser(username,password) {
+async function getUser(username, password) {
   try {
-    username = username.trim();
-    password = password.trim();
-    usrRegex = new RegExp(username, 'i'); // 'i' flag for case-insensitive matching
-    pwdRegex = new RegExp(password, 'i'); // 'i' flag for case-insensitive matching
-    const user = await User.findOne({username: usrRegex, password: pwdRegex}).exec(); // Using .exec() to get a promise
+    // Remove all whitespace characters from username and password
+    username = username.replace(/\s+/g, '');
+    password = password.replace(/\s+/g, '');
+    
+    // Create case-insensitive regex for matching
+    const usrRegex = new RegExp(`^${username}$`, 'i'); // Match the entire username
+    const pwdRegex = new RegExp(`^${password}$`, 'i'); // Match the entire password
+    
+    // Find the user with the exact username and password match
+    const user = await User.findOne({ username: usrRegex, password: pwdRegex }).exec();
+    
     if (user) {
-      // Convert _id to string
+      // Convert _id to string for consistency
       user._id = user._id.toString();
     }
+    
     return user;
   } catch (error) {
     console.error('Error fetching user:', error);
     throw error;
   }
 }
+
 
 async function getAllUsers() {
   try {
