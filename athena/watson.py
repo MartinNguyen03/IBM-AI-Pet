@@ -1,18 +1,27 @@
 import json
 import time
-from ibm_watson import AssistantV2
+from ibm_watson import AssistantV2, TextToSpeechV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+import io
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+import pyaudio
+import speech_recognition as sr
+import pygame
 import warnings
+from dotenv import load_dotenv
+import os
 warnings.filterwarnings('ignore')
 
 class WatsonAssistant:
-    def __init__(self, api_key, service_url, assistant_id):
-        self.assistant_id = assistant_id
+    def __init__(self):
+        api_key = os.getenv('WATSON_ASSISTANT_APIKEY')
+        service_url = os.getenv('WATSON_ASSISTANT_URL')
+        self.assistant_id = os.getenv('DRAFT_ENV_ID')
         self.session_id = None
         self.context = {}
-        self.assistant = self.create_assistant(api_key, service_url)
+        self.assistant = self.createAssistant(api_key, service_url)
     
-    def create_assistant(self, api_key, service_url):
+    def createAssistant(self, api_key, service_url):
         authenticator = IAMAuthenticator(api_key)
         assistant = AssistantV2(
             version='2021-11-27',
@@ -22,23 +31,23 @@ class WatsonAssistant:
         assistant.set_disable_ssl_verification(True)
         return assistant
     
-    def create_session(self):
+    def createSession(self):
         session_response = self.assistant.create_session(
             assistant_id=self.assistant_id
         ).get_result()
         self.session_id = session_response['session_id']
     
-    def delete_session(self):
+    def deleteSession(self):
         if self.session_id:
             self.assistant.delete_session(
                 assistant_id=self.assistant_id,
                 session_id=self.session_id
             ).get_result()
             self.session_id = None
-    
-    def handle_chat(self, user_input, max_retries=4):
+
+    def handleChat(self, user_input, max_retries=5):
         if self.session_id is None:
-            self.create_session()
+            self.createSession()
         
         for attempt in range(max_retries):
             try:
@@ -63,7 +72,7 @@ class WatsonAssistant:
                 message_output = "No response from Watson Assistant."
 
             # Wait before retrying
-            time.sleep(0.01)
+            time.sleep(1)
         else:
             message_output = "Failed to get a valid response from Watson Assistant after multiple attempts."
 
@@ -72,6 +81,65 @@ class WatsonAssistant:
             self.context = response['context']
         
         return message_output
+    
+    def textToSpeech(self, text):
+        authenticator = IAMAuthenticator(os.getenv('WATSON_TTS_APIKEY'))
+        tts = TextToSpeechV1(authenticator=authenticator)
+        tts.set_service_url(os.getenv('WATSON_TTS_URL'))
+        tts.set_disable_ssl_verification(True)
+
+        # Generate the audio in memory
+        response = tts.synthesize(text, accept='audio/mp3', voice='en-US_AllisonV3Voice').get_result()
+        audio_content = response.content
+
+        # Play the audio using pygame
+        self.playAudio(audio_content)
+
+    def playAudio(self, audio_content):
+        # Initialize pygame mixer
+        pygame.mixer.init()
+
+        # Load the MP3 data using pygame mixer
+        audio_stream = io.BytesIO(audio_content)
+        pygame.mixer.music.load(audio_stream, 'mp3')
+
+        # Play the audio
+        pygame.mixer.music.play()
+
+        # Wait until the audio is finished playing
+        while pygame.mixer.music.get_busy():
+            pygame.time.Clock().tick(10)
+
+    def speechToText(self):
+        recognizer = sr.Recognizer()
+        mic = sr.Microphone()
+
+        with mic as source:
+            print("Adjusting for ambient noise... Please wait.")
+            recognizer.adjust_for_ambient_noise(source)
+            print("Adjusted. Start speaking.")
+
+            while True:
+                print("Listening...")
+                audio = recognizer.listen(source)
+                print("Processing...")
+
+                try:
+                    text = recognizer.recognize_google(audio)
+                    print(f"Recognized: {text}")
+
+                    if text.lower() == "exit":
+                        print("Exiting...")
+                        break
+                    
+                    return text
+                except sr.UnknownValueError:
+                    self.textToSpeech("Could you repeat please")
+                except sr.RequestError:
+                    print("Could not request results; service is down")
+
+               
+
 
 # For text-based chatbot
 def textbot():
