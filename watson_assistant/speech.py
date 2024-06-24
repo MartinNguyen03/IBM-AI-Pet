@@ -5,12 +5,18 @@ import pyaudio
 import speech_recognition as sr
 import pygame
 import warnings
+import os
+from dotenv import load_dotenv
 warnings.filterwarnings('ignore')
 
+load_dotenv(
+    dotenv_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+)
+
 def text_to_speech(text):
-    authenticator = IAMAuthenticator('M3wUUJKQxq_LJ_vDEfvUhDZewwyJyFqoO1STfdqk9SAF')
+    authenticator = IAMAuthenticator(os.getenv('WATSON_TTS_APIKEY'))
     tts = TextToSpeechV1(authenticator=authenticator)
-    tts.set_service_url('https://api.au-syd.text-to-speech.watson.cloud.ibm.com/instances/0ca23754-b89a-4029-85cc-0131bae73271')
+    tts.set_service_url(os.getenv('WATSON_TTS_URL'))
     tts.set_disable_ssl_verification(True)
 
     try:

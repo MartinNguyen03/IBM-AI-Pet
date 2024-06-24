@@ -162,7 +162,7 @@ app.get('/calendar/dates', async (req, res) => {
   const { userID, startDate, endDate } = req.query;
 
   try {
-    const calendar = await dbHelpers.getCalendarDates(userID, startDate, endDate);
+    const calendar = await dbHelpers.getDateCalendar(userID, startDate, endDate);
     res.json(calendar);
   } catch (error) {
     console.error(error);

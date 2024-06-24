@@ -233,8 +233,11 @@ async function deleteCalendar(userID, eventId) {
 
 async function getUser(username,password) {
   try {
-    regex = new RegExp(username, 'i'); // 'i' flag for case-insensitive matching
-    const user = await User.findOne({username: regex, password: password}).exec(); // Using .exec() to get a promise
+    username = username.trim();
+    password = password.trim();
+    usrRegex = new RegExp(username, 'i'); // 'i' flag for case-insensitive matching
+    pwdRegex = new RegExp(password, 'i'); // 'i' flag for case-insensitive matching
+    const user = await User.findOne({username: usrRegex, password: pwdRegex}).exec(); // Using .exec() to get a promise
     if (user) {
       // Convert _id to string
       user._id = user._id.toString();
