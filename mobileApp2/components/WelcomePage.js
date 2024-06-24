@@ -94,8 +94,8 @@ export default function WelcomePage({ navigation, route }) {
         },
         body: JSON.stringify({
           userID: userID,
-          latitude: loc.coords.latitude,
-          longitude: loc.coords.longitude,
+          locLatitude: loc.coords.latitude,
+          locLongitude: loc.coords.longitude,
         }),
       });
     } catch (err) {

@@ -1,7 +1,0 @@
-{
-    "app_id": "aipet-wleipsq",
-    "config_version": 20210101,
-    "name": "AIPet",
-    "provider_region": "aws-eu-west-1",
-    "deployment_model": "LOCAL"
-}

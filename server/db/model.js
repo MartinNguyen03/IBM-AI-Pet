@@ -98,6 +98,10 @@ const CalendarSchema = new Schema({
   endDate: {
     type: Date, default: Date.now,
     required: true
+  },
+  notes: {
+    type: String,
+    required: false
   }
 }, { collection: 'Calendar' });
 

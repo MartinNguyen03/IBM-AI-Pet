@@ -45,21 +45,20 @@ async function addUser(username, password, name, phoneNumber, longitude, latitud
 
 async function addCalendar(userID, eventId, activityName, activityType, startDate, endDate, notes) {
   try {
-    const existingEvent = await Calendar.findOne({ userID, eventId }); // Fixed variable name to match parameter
+    const existingEvent = await Calendar.findOne({ userID, eventId });
 
     if (existingEvent) {
       existingEvent.activityType = activityType;
       existingEvent.startDate = startDate;
       existingEvent.endDate = endDate;
       existingEvent.activityName = activityName;
-      existingEvent.notes = notes; // Added missing semicolon
+      existingEvent.notes = notes;
       await existingEvent.save();
-      console.log('Calendar event updated successfully:', eventID);
-      // Removed res.status line to avoid reference error and maintain consistency with console logging
+      console.log('Calendar event updated successfully:', eventId);
     } else {
       const newCalendarEvent = new Calendar({
         userID,
-        eventId, // Fixed variable name to match parameter
+        eventId,
         activityType,
         activityName,
         startDate,
@@ -74,6 +73,7 @@ async function addCalendar(userID, eventId, activityName, activityType, startDat
     console.error('Error adding calendar:', err);
   }
 }
+
 
 async function addChat(userID, chatTrait) {
   try {
@@ -221,7 +221,7 @@ async function deleteUser(userID) {
 
 async function deleteCalendar(userID, eventId) {
   try {
-    await Calendar.deleteOne({ userID:userID, eventId: eventId });
+    await Calendar.deleteMany({ userID: userID, eventId: eventId });
     console.log('Calendar entry deleted successfully!');
     await addHistory(userID, 'Calendar Entry Deleted');
   } catch (err) {
@@ -231,16 +231,31 @@ async function deleteCalendar(userID, eventId) {
 
 /* ------------------- GET FUNCTIONS ------------------- */
 
-async function getUser(username,password) {
+async function getUser(username, password) {
   try {
-    regex = new RegExp(username, 'i'); // 'i' flag for case-insensitive matching
-    const user = await User.find({username: regex, password: password}).exec(); // Using .exec() to get a promise
+    // Remove all whitespace characters from username and password
+    username = username.replace(/\s+/g, '');
+    password = password.replace(/\s+/g, '');
+    
+    // Create case-insensitive regex for matching
+    const usrRegex = new RegExp(`^${username}$`, 'i'); // Match the entire username
+    const pwdRegex = new RegExp(`^${password}$`, 'i'); // Match the entire password
+    
+    // Find the user with the exact username and password match
+    const user = await User.findOne({ username: usrRegex, password: pwdRegex }).exec();
+    
+    if (user) {
+      // Convert _id to string for consistency
+      user._id = user._id.toString();
+    }
+    
     return user;
   } catch (error) {
     console.error('Error fetching user:', error);
     throw error;
   }
 }
+
 
 async function getAllUsers() {
   try {

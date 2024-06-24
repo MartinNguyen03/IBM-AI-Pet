@@ -54,11 +54,10 @@ app.get('/user', async (req, res) => {
 //match user-users
 
 
-app.get('/user/:username', async (req, res) => {
-  const { userID } = req.query;
-  const { username } = req.params;
+app.get('/user/:username/:password', async (req, res) => {
+  const { username, password } = req.params;
   try {
-    const user = await dbHelpers.getUser(userID, username);
+    const user = await dbHelpers.getUser(username, password);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -74,8 +73,8 @@ app.post('/user/location', async (req, res) => {
   try {
     const { userID, latitude, longitude } = req.body;
     await User.findByIdAndUpdate(userID, {
-      location_latitude: latitude,
-      location_longitude: longitude,
+      locLatitude: latitude,
+      locLongitude: longitude,
     });
     res.status(200).send('Location updated successfully');
   } catch (err) {
@@ -139,7 +138,7 @@ app.get('/calendar', async (req, res) => {
   const { userID } = req.query;
 
   try {
-    const calendar = await dbHelpers.getAllCalendar(userID);
+    const calendar = await dbHelpers.getAllCalendars(userID);
     res.json(calendar);
   } catch (error) {
     console.error(error);
@@ -163,7 +162,7 @@ app.get('/calendar/dates', async (req, res) => {
   const { userID, startDate, endDate } = req.query;
 
   try {
-    const calendar = await dbHelpers.getCalendarDates(userID, startDate, endDate);
+    const calendar = await dbHelpers.getDateCalendar(userID, startDate, endDate);
     res.json(calendar);
   } catch (error) {
     console.error(error);
@@ -201,7 +200,7 @@ app.post('/calendar', async (req, res) => {
 });
 
 app.delete('/calendar', async (req, res) => {
-  const { userID, eventId } = req.query;
+  const { userID, eventId } = req.body;
 
   try {
     await dbHelpers.deleteCalendar(userID, eventId);
