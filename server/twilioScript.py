@@ -5,8 +5,8 @@ import os
 load_dotenv(
     dotenv_path= os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 )
-account_sid = os.getenv('TWILIO_ACCOUNT_SID')
-auth_token = os.getenv('TWILIO_AUTH_TOKEN')
+account_sid = os.getenv('T_SID')
+auth_token = os.getenv('T_AUTH_TOKEN')
 verify_service_sid = os.getenv('TWILIO_VERIFICATION_SID')
 client = Client(account_sid, auth_token)
 
@@ -19,7 +19,7 @@ def check_verification_code(phone_number, code):
     return verification_check.status
 
 def send_sms(to_phone_number, message_body):
-    from_phone_number = os.getenv('TWILIO_PHONE_NUMBER')
+    from_phone_number = os.getenv('T_PHONE_NUMBER')
     
     message = client.messages.create(
         body=message_body,
