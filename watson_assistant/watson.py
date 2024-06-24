@@ -49,15 +49,15 @@ class WatsonAssistant:
         
         for attempt in range(max_retries):
             try:
-                # Update context with userID if it's set
-                if self.userID:
-                    self.context['skills'] = {
-                        'actions skill': {
-                            'skill_variables': {
-                                'userID': self.userID
-                            }
-                        }
-                    }
+                # # Update context with userID if it's set
+                # if self.userID:
+                #     self.context['skills'] = {
+                #         'actions skill': {
+                #             'skill_variables': {
+                #                 'userID': self.userID
+                #             }
+                #         }
+                #     }
 
                 response = self.assistant.message(
                     assistant_id=self.assistant_id,
@@ -72,8 +72,8 @@ class WatsonAssistant:
                     context=self.context
                 ).get_result()
                 
-                # Debug print to see the whole response structure
-                print("Debug response:", json.dumps(response, indent=2))
+                # # Debug print to see the whole response structure
+                # print("Debug response:", json.dumps(response, indent=2))
                 
                 # Ensure the response contains 'output' and 'generic' fields
                 if 'output' in response and 'generic' in response['output']:
