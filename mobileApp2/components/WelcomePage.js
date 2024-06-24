@@ -137,7 +137,7 @@ export default function WelcomePage({ navigation, route }) {
         }
       });
     } else {
-      Alert.alert('No contacts found');
+      //Alert.alert('No contacts found');
     }
   };
 
