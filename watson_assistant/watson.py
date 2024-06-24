@@ -8,7 +8,7 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 load_dotenv(
-    dotenv_path= os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+    dotenv_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 )
 
 class WatsonAssistant:
@@ -16,6 +16,7 @@ class WatsonAssistant:
         self.assistant_id = assistant_id
         self.session_id = None
         self.context = {}
+        self.userID = '665da7e72fb29f828bac1fe0'
         self.assistant = self.create_assistant(api_key, service_url)
     
     def create_assistant(self, api_key, service_url):
@@ -48,6 +49,16 @@ class WatsonAssistant:
         
         for attempt in range(max_retries):
             try:
+                # Update context with userID if it's set
+                if self.userID:
+                    self.context['skills'] = {
+                        'actions skill': {
+                            'skill_variables': {
+                                'userID': self.userID
+                            }
+                        }
+                    }
+
                 response = self.assistant.message(
                     assistant_id=self.assistant_id,
                     session_id=self.session_id,
@@ -61,9 +72,24 @@ class WatsonAssistant:
                     context=self.context
                 ).get_result()
                 
-                if 'output' in response and 'generic' in response['output'] and len(response['output']['generic']) > 0:
-                    message_output = response['output']['generic'][0]['text']
-                    break
+                # Debug print to see the whole response structure
+                print("Debug response:", json.dumps(response, indent=2))
+                
+                # Ensure the response contains 'output' and 'generic' fields
+                if 'output' in response and 'generic' in response['output']:
+                    # Find the first response with 'text' field
+                    message_output = None
+                    for generic_response in response['output']['generic']:
+                        if 'text' in generic_response:
+                            message_output = generic_response['text']
+                            break
+                    
+                    if message_output is None:
+                        message_output = "No valid text response from Watson Assistant."
+                else:
+                    message_output = "Unexpected response format from Watson Assistant."
+
+                break
             except Exception as e:
                 print(f"Error occurred: {e}")
                 message_output = "No response from Watson Assistant."
@@ -80,13 +106,11 @@ class WatsonAssistant:
         return message_output
 
 def chatbot():
-
     text_to_speech('Hello, I am Athena, your personal assistant. How can I help you today?')
 
     api_key = os.getenv('WATSON_ASSISTANT_APIKEY')
-    service_url = os.getenv('WATSON_ASSISTANT_TTS_URL')
+    service_url = os.getenv('WATSON_ASSISTANT_URL')
     assistant_id = os.getenv('DRAFT_ENV_ID')
-    userID = os.getenv('USER_ID')
     
     watsonAssistant = WatsonAssistant(api_key, service_url, assistant_id)
 
@@ -97,6 +121,7 @@ def chatbot():
             if user_input.lower() == "exit":
                 break
             response = watsonAssistant.handle_chat(user_input)
+            
             print(f"Watson Response: {response}")
             text_to_speech(response)
             if 'search for' in response.lower() or 'searching for' in response.lower() or 'here are' in response.lower() or 'lets have a look' in response.lower():

@@ -54,11 +54,10 @@ app.get('/user', async (req, res) => {
 //match user-users
 
 
-app.get('/user/:username', async (req, res) => {
-  const { userID } = req.query;
-  const { username } = req.params;
+app.get('/user/:username/:password', async (req, res) => {
+  const { username, password } = req.params;
   try {
-    const user = await dbHelpers.getUser(userID, username);
+    const user = await dbHelpers.getUser(username, password);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
