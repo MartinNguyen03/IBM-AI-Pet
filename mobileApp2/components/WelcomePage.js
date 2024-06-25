@@ -564,7 +564,7 @@ export default function WelcomePage({ navigation, route }) {
   
     try {
       // Fetch events from the server
-      const response = await fetch(`https://ibm-ai-pet.onrender.com/calendar/${userID}`);
+      const response = await fetch(`https://ibm-ai-pet.onrender.com/calendar?userID=${userID}`);
       const serverEvents = await response.json();
   
       // Get the default calendar ID or another appropriate calendar ID
