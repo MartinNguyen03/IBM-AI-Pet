@@ -3,6 +3,7 @@ import time
 from ibm_watson import AssistantV2, TextToSpeechV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 import io
+import re
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 import pyaudio
 import speech_recognition as sr
@@ -20,7 +21,7 @@ class WatsonAssistant:
     def __init__(self):
         api_key = os.getenv('WATSON_ASSISTANT_APIKEY')
         service_url = os.getenv('WATSON_ASSISTANT_URL')
-        self.assistant_id = os.getenv('DRAFT_ENV_ID')
+        self.assistant_id = os.getenv('LIVE_ENV_ID')
         self.session_id = None
         self.context = {}
         self.assistant = self.createAssistant(api_key, service_url)
@@ -81,6 +82,10 @@ class WatsonAssistant:
                 else:
                     message_output = "Unexpected response format from Watson Assistant."
 
+                # Update context
+                if 'context' in response:
+                    self.context = response['context']
+                
                 break
             except Exception as e:
                 print(f"Error occurred: {e}")
@@ -91,10 +96,6 @@ class WatsonAssistant:
         else:
             message_output = "Failed to get a valid response from Watson Assistant after multiple attempts."
 
-        # Update context
-        if 'context' in response:
-            self.context = response['context']
-        
         return message_output
     
     def textToSpeech(self, text):
@@ -136,6 +137,7 @@ class WatsonAssistant:
 
             while True:
                 print("Listening...")
+                self.textToSpeech("Listening...")
                 audio = recognizer.listen(source)
                 print("Processing...")
 
@@ -156,23 +158,30 @@ class WatsonAssistant:
                
 
 
-# # For text-based chatbot
-# def textbot():
-#     api_key = 'CNMroTYvvNhmlODBsgfGDXt7oDU-_83_-4KoMm6elTRG'
-#     service_url = 'https://api.au-syd.assistant.watson.cloud.ibm.com/instances/698ca409-f562-471e-a74b-a2efdd5e3259'
-#     assistant_id = '57bdddd6-b3a3-452c-becd-a8b3ed689e9d'
 
-#     watsonAssistant = WatsonAssistant(api_key, service_url, assistant_id)
+def textbot():
+    watsonAssistant = WatsonAssistant()
+    print('Hello, I am Athena, your personal assistant. How can I help you today?')
+    # watsonAssistant.textToSpeech('Hello, I am Athena, your personal assistant. How can I help you today?')
+    # Example of multi-turn conversation
+    try:
+        while True:
+            # user_input = watsonAssistant.speechToText()
+            user_input = input("User Input: ")
+            if user_input.lower() == "exit":
+                break
+            response = watsonAssistant.handleChat(user_input)
+            
+            print(f"Watson Response: {response}")
+            watsonAssistant.textToSpeech(response)
+            searchPhrasePattern = re.compile(r'search for|searching for|here are|lets have a look|lets look',
+                                             re.IGNORECASE)
+            if searchPhrasePattern.search(response.lower()):
+                response = watsonAssistant.handleChat("continue search")
+                print(f"Watson Response: {response}")
+                watsonAssistant.textToSpeech(f"Watson Response: {response}")
+    finally:
+        # Properly close the session when done
+        watsonAssistant.deleteSession()
 
-#     try:
-#         while True:
-#             user_input = input("You: ")
-#             if user_input.lower() == "exit":
-#                 break
-#             response = watsonAssistant.handle_chat(user_input)
-#             print(f"Watson Response: {response}")
-#     finally:
-#         # Properly close the session when done
-#         watsonAssistant.delete_session()
-
-# # chatbot()
+textbot()

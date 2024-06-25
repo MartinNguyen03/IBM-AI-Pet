@@ -111,13 +111,23 @@ class Athena(pygame.sprite.Sprite):
                 user_input = self.watson.speechToText()
                 if user_input.lower() == "exit":
                     break
-                elif re.match(r'^athena\b', user_input, re.IGNORECASE): # Check if the user is talking to Athena (toggle athena)
-                    self.watson.textToSpeech("Listening...") 
-                    user_input = self.watson.speechToText()         
-                    response = self.watson.handleChat(user_input)
-                    print(f"Watson Response: {response}")
-                    self.updateSentiment(user_input)
-                    self.watson.textToSpeech(response)
+                elif re.search(r'^athena\b', user_input, re.IGNORECASE): # Check if the user is talking to Athena (toggle athena)
+                    self.watson.textToSpeech("How can I help?") 
+                    user_input = self.watson.speechToText()
+                    cancelPhrasePattern = re.compile(r'cancel|nevermind|forget it', re.IGNORECASE)
+                    if cancelPhrasePattern.search(user_input.lower()):
+                        self.watson.textToSpeech("Okay, let me know if you need anything.")
+                    else:
+                        response = self.watson.handleChat(user_input)
+                        print(f"Watson Response: {response}")
+                        self.updateSentiment(user_input)
+                        self.watson.textToSpeech(response)
+                        searchPhrasePattern = re.compile(r'search for|searching for|here are|lets have a look|lets look',
+                                                 re.IGNORECASE)
+                        if searchPhrasePattern.search(response.lower()):
+                            response = self.watson.handleChat("continue search")
+                            print(f"Watson Response: {response}")
+                            self.watson.textToSpeech(f"Watson Response: {response}")
         finally:
             # Properly close the session when done
             self.watson.delete_session()
