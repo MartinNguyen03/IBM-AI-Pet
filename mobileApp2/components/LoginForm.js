@@ -22,7 +22,7 @@ export default function LoginForm({ navigation }) {
       const user = users.find(user => user.username === username && user.password === password);
 
       if (user) {
-        navigation.navigate('Welcome', { userID: user._id });
+        navigation.navigate('Welcome', { userID: user._id , username});
       } else {
         Alert.alert('Invalid Credentials', 'Please enter the correct username and password.');
       }
