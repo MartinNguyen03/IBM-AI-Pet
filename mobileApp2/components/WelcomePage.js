@@ -7,7 +7,7 @@ import * as Calendar from 'expo-calendar';
 import BlankPage from './BlankPage';
 
 export default function WelcomePage({ navigation, route }) {
-  const { userID } = route.params;
+  const { userID, username } = route.params;
   const [showBlankPage, setShowBlankPage] = useState(false);
   const [location, setLocation] = useState(null);
   const [contacts, setContacts] = useState([]);
@@ -638,7 +638,7 @@ export default function WelcomePage({ navigation, route }) {
     <>
       {!showBlankPage && (
         <View style={styles.container}>
-          <Text style={styles.title}>Welcome, Ana!</Text>
+          <Text style={styles.title}>Welcome, {username}!</Text>
           <Text>You are now logged in.</Text>
           <Button title="Go to Blank Page" onPress={goToBlankPage} />
           {/* <Button title="Delete All Events" onPress={deleteAllEventsFromDevice} />
