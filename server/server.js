@@ -516,6 +516,42 @@ app.put('/trait/desirability', async (req, res) => {
   }
 });
 
+// -----------------APP-----------------
+app.post('/calendarEventID0', async (req, res) => {
+  try {
+    const { userID, eventId, activityType, startDate, endDate, activityName, notes } = req.body;
+    const existingEvent = await Calendar.findOne({ userID, activityName, endDate, startDate });
+
+    if (existingEvent) {
+      existingEvent.activityType = activityType;
+      existingEvent.eventId = eventId;
+      existingEvent.startDate = startDate;
+      existingEvent.endDate = endDate;
+      existingEvent.activityName = activityName;
+      existingEvent.notes = notes 
+      await existingEvent.save();
+      console.log('Calendar event updated successfully:', eventId);
+      res.status(200).send('Calendar event updated successfully');
+    } else {
+      const newCalendarEvent = new Calendar({
+        userID,
+        eventId,
+        activityType,
+        activityName,
+        startDate,
+        endDate,
+        notes, 
+      });
+      await newCalendarEvent.save();
+      res.status(201).send('Calendar event saved successfully');
+      console.log('Calendar event saved successfully:', eventId);
+      console.log('Calendar event saved notes:', notes === 'S');
+    }
+  } catch (err) {
+    console.error('Error saving calendar event:', err.message);
+    res.status(500).send('Server Error');
+  }
+});
 // ---------------------------------------------------
 
 const PORT = process.env.PORT || 5000;

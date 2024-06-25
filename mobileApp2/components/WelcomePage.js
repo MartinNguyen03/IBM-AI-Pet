@@ -384,6 +384,13 @@ export default function WelcomePage({ navigation, route }) {
       if (!calendarId) {
         throw new Error('No modifiable calendar found on the device.');
       }
+      // Fetch events from the device calendar
+      const deviceEvents = await Calendar.getEventsAsync(
+        [calendarId],
+        new Date(),
+        new Date(new Date().setDate(new Date().getDate() + 60))
+      );
+
   
       // Compare with previous events
       const newEvents = serverEvents.filter(serverEvent => 
@@ -408,16 +415,26 @@ export default function WelcomePage({ navigation, route }) {
   
       // Handle new events
       for (const event of newEvents) {
-        try {
-          console.log('Adding event to device:', event.activityName);
-          await Calendar.createEventAsync(calendarId, {
-            title: event.activityName,
-            startDate: new Date(event.startDate),
-            endDate: new Date(event.endDate),
-            notes: 'S', 
-          });
-        } catch (err) {
-          console.error('Error adding event to device:', err);
+        const duplicateEvent = deviceEvents.find(deviceEvent =>
+          deviceEvent.title === event.activityName &&
+          new Date(deviceEvent.startDate).getTime() === new Date(event.startDate).getTime() &&
+          new Date(deviceEvent.endDate).getTime() === new Date(event.endDate).getTime()
+        );
+
+        if (!duplicateEvent) {
+          try {
+            console.log('Adding event to device:', event.activityName);
+            await Calendar.createEventAsync(calendarId, {
+              title: event.activityName,
+              startDate: new Date(event.startDate),
+              endDate: new Date(event.endDate),
+              notes: 'S', 
+            });
+          } catch (err) {
+            console.error('Error adding event to device:', err);
+          }
+        } else {
+          console.log('Duplicate event found, not adding to device:', event.activityName);
         }
       }
   
@@ -538,6 +555,84 @@ export default function WelcomePage({ navigation, route }) {
   
   // // Example usage within a React Native component
   // //<Button title="Delete All Events from DB" onPress={() => deleteAllEventsFromDB(userID)} />
+  const fetchAndUpdateEventIds = async () => {
+    const { status } = await Calendar.requestCalendarPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission to access calendar was denied');
+      return;
+    }
+  
+    try {
+      // Fetch events from the server
+      const response = await fetch(`http://localhost:5001/calendar/${userID}`);
+      const serverEvents = await response.json();
+  
+      // Get the default calendar ID or another appropriate calendar ID
+      const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+      const defaultCalendar = calendars.find(calendar => calendar.allowsModifications);
+      const calendarId = defaultCalendar ? defaultCalendar.id : null;
+  
+      if (!calendarId) {
+        throw new Error('No modifiable calendar found on the device.');
+      }
+  
+      // Fetch events from the device calendar
+      const deviceEvents = await Calendar.getEventsAsync(
+        [calendarId],
+        new Date(),
+        new Date(new Date().setDate(new Date().getDate() + 60))
+      );
+  
+      // Find matching events
+      for (const serverEvent of serverEvents) {
+        if (serverEvent.eventId === '0') {
+          const matchingDeviceEvent = deviceEvents.find(deviceEvent =>
+            new Date(serverEvent.startDate).getTime() === new Date(deviceEvent.startDate).getTime() &&
+            new Date(serverEvent.endDate).getTime() === new Date(deviceEvent.endDate).getTime() &&
+            serverEvent.activityName === deviceEvent.title //&&
+            //(serverEvent.notes || ' ') === (deviceEvent.notes || ' ')
+          );
+  
+          if (matchingDeviceEvent) {
+            // Update the server event with the real eventId from the device
+            try {
+              await fetch('https://ibm-ai-pet.onrender.com/calendarEventID0', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  userID: userID,
+                  eventId: matchingDeviceEvent.id,
+                  activityType: serverEvent.activityType,
+                  activityName: serverEvent.activityName,
+                  startDate: serverEvent.startDate,
+                  endDate: serverEvent.endDate,
+                  notes: serverEvent.notes || ' ',
+                }),
+              });
+              console.log(`Updated eventId for event: ${serverEvent.activityName}`);
+            } catch (err) {
+              console.error('Error updating event on server:', err);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching events from server or device:', error);
+    }
+  };
+  
+  // Call the function to fetch and update event IDs
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchAndUpdateEventIds();
+    }, 5000); // 5000 milliseconds = 5 seconds
+  
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, [previousEvents, userID]);
+
+
 
   return (
     <>
