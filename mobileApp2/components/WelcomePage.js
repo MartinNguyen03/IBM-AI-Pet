@@ -1,6 +1,6 @@
 //ibm-ai-pet/mobileApp2/components/WelcomePage.js
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, Button, StyleSheet, Alert , TouchableOpacity} from 'react-native';
 import * as Location from 'expo-location';
 import * as Contacts from 'expo-contacts';
 import * as Calendar from 'expo-calendar';
@@ -639,47 +639,71 @@ export default function WelcomePage({ navigation, route }) {
       {!showBlankPage && (
         <View style={styles.container}>
           <Text style={styles.title}>Welcome, {username}!</Text>
-          <Text>You are now logged in.</Text>
-          <Button title="Go to Blank Page" onPress={goToBlankPage} />
-          {/* <Button title="Delete All Events" onPress={deleteAllEventsFromDevice} />
-          <Button title="Delete All Events from DB" onPress={() => deleteAllEventsFromDB(userID)} /> */}
-          <Button title="Get Location" onPress={handleGetLocation} />
-          {location && (
-            <Text>
-              Your location is {location.latitude}, {location.longitude}
-            </Text>
-          )}
-          <Button title="Get Contacts" onPress={handleGetContacts} />
-          {contacts.map((contact, index) => (
-            <View key={index}>
-              <Text>{contact.name}</Text>
-              {contact.phoneNumbers && contact.phoneNumbers.length > 0 && (
-                <Text>{contact.phoneNumbers[0].number}</Text>
-              )}
-            </View>
-          ))}
-          <Button title="Get Calendar Events" onPress={handleGetEvents} />
-          {events.map((event, index) => (
-            <View key={index}>
-              <Text>{event.title}</Text>
-              <Text>{new Date(event.startDate).toLocaleString()}</Text>
-              <Text>{new Date(event.endDate).toLocaleString()}</Text>
-            </View>
-          ))}
-          <Button title="Logout" onPress={handleLogout} />
+          <Text style={styles.subtitle}>You are now logged in.</Text>
+          <TouchableOpacity style={styles.button} onPress={handleGetLocation}>
+            <Text style={styles.buttonText}>Get Location</Text>
+          </TouchableOpacity>
+          <View style={styles.separator} />
+          <TouchableOpacity style={styles.button} onPress={handleGetContacts}>
+            <Text style={styles.buttonText}>Get Contacts</Text>
+          </TouchableOpacity>
+          <View style={styles.separator} />
+          <TouchableOpacity style={styles.button} onPress={handleGetEvents}>
+            <Text style={styles.buttonText}>Get Calendar Events</Text>
+          </TouchableOpacity>
+          <View style={styles.separator} />
+          <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
+            <Text style={styles.buttonText}>Logout</Text>
+          </TouchableOpacity>
         </View>
       )}
-      {showBlankPage && <BlankPage onBack={goBack} />}
     </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
+    backgroundColor: '#F5F5F5',
   },
   title: {
-    fontSize: 24,
+    fontSize: 32,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#333',
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 20,
     marginBottom: 20,
+    color: '#666',
+    textAlign: 'center',
+  },
+  button: {
+    backgroundColor: '#1e90ff',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginVertical: 10,
+    width: '80%',
+  },
+  buttonText: {
+    color: '#ffffff',
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  logoutButton: {
+    backgroundColor: '#B00020',
+  },
+  separator: {
+    marginVertical: 10,
+    borderBottomColor: '#CCC',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    width: '100%',
   },
 });
