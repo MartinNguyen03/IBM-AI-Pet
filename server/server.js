@@ -188,7 +188,7 @@ app.get('/calendar/today', async (req, res) => {
 });
 
 app.post('/calendar', async (req, res) => {
-  const { userID, eventId, activityType, startDate, endDate, activityName, notes } = req.body;
+  const { userID, eventId = 0, activityType, startDate, endDate, activityName, notes = 'S' } = req.body;
 
   try {
     await dbHelpers.addCalendar(userID, eventId, activityName, activityType, startDate, endDate, notes);
@@ -200,7 +200,7 @@ app.post('/calendar', async (req, res) => {
 });
 
 app.delete('/calendar', async (req, res) => {
-  const { userID, eventId } = req.body;
+  const { userID, eventId} = req.body;
 
   try {
     await dbHelpers.deleteCalendar(userID, eventId);
