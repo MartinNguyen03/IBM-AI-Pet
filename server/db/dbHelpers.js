@@ -109,7 +109,7 @@ async function addComms(userID, recipientPhoneNumber, recipientName) {
         userID,
         recipientName,
         recipientPhoneNumber,
-        timestamp: Date.now(),
+        dateSuggested: Date.now(),
       });
       await newComms.save();
       console.log('Comms created successfully!');

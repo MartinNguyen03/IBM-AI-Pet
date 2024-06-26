@@ -1,5 +1,4 @@
 //IBM-AI-PET/db/model.js
-const { Double } = require('mongodb');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -79,7 +78,7 @@ const CalendarSchema = new Schema({
     ref: 'User' // Assuming you have a User model
   },
   eventId: { 
-    type: String,
+    type: String, default: 0,
     required: false
   },
   activityName: {
@@ -88,7 +87,7 @@ const CalendarSchema = new Schema({
   },
   activityType: {
     type: String,
-    required: true,
+    required: false,
     enum: ['Meal', 'Exercise', 'Podcast', 'Chat', 'Comm', 'Other']
   },
   startDate: {
@@ -100,7 +99,7 @@ const CalendarSchema = new Schema({
     required: true
   },
   notes: {
-    type: String,
+    type: String, default: 'S',
     required: false
   }
 }, { collection: 'Calendar' });
@@ -138,7 +137,7 @@ const CommsSchema = new Schema({
     type: String,
     required: true
   },
-  timestamp: {
+  dateSuggested: {
     type: Date, default: Date.now,
     required: true
   }

@@ -21,7 +21,7 @@ class WatsonAssistant:
     def __init__(self):
         api_key = os.getenv('WATSON_ASSISTANT_APIKEY')
         service_url = os.getenv('WATSON_ASSISTANT_URL')
-        self.assistant_id = os.getenv('LIVE_ENV_ID')
+        self.assistant_id = os.getenv('DRAFT_ENV_ID')
         self.session_id = None
         self.context = {}
         self.assistant = self.createAssistant(api_key, service_url)
@@ -95,7 +95,6 @@ class WatsonAssistant:
             time.sleep(1)
         else:
             message_output = "Failed to get a valid response from Watson Assistant after multiple attempts."
-
         return message_output
     
     def textToSpeech(self, text):
@@ -162,12 +161,12 @@ class WatsonAssistant:
 def textbot():
     watsonAssistant = WatsonAssistant()
     print('Hello, I am Athena, your personal assistant. How can I help you today?')
-    # watsonAssistant.textToSpeech('Hello, I am Athena, your personal assistant. How can I help you today?')
+    watsonAssistant.textToSpeech('Hello, I am Athena, your personal assistant. How can I help you today?')
     # Example of multi-turn conversation
     try:
         while True:
             # user_input = watsonAssistant.speechToText()
-            user_input = input("User Input: ")
+            user_input = watsonAssistant.speechToText()
             if user_input.lower() == "exit":
                 break
             response = watsonAssistant.handleChat(user_input)
@@ -179,7 +178,7 @@ def textbot():
             if searchPhrasePattern.search(response.lower()):
                 response = watsonAssistant.handleChat("continue search")
                 print(f"Watson Response: {response}")
-                watsonAssistant.textToSpeech(f"Watson Response: {response}")
+                watsonAssistant.textToSpeech(response)
     finally:
         # Properly close the session when done
         watsonAssistant.deleteSession()

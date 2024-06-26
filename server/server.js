@@ -286,7 +286,7 @@ app.get('/comms/:recipientName', async (req, res) => {
 });
 
 app.post('/comms', async (req, res) => {
-  const { userID, recipientName, recipientPhoneNumber } = req.body;
+  const { userID, recipientName, recipientPhoneNumber, dateSuggested = Date.now() } = req.body;
 
   try {
     await dbHelpers.addComms(userID, recipientPhoneNumber, recipientName);
