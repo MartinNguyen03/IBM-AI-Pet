@@ -2,7 +2,8 @@
 2024 Group Consultancy Project for IBM innovating AI Robot
 
 ## Important files
-
+/atena/atena.py
+/athena/watson.py
 
 ## Video Demo
 Click on the thumbnail below to watch the video demo:
