@@ -5,4 +5,4 @@
 
 
 ## Video Demo
-[![Watch the video](https://raw.githubusercontent.com/MartinNguyen03/IBM-AI-Pet/main/thumbnail.jpg)](https://raw.githubusercontent.com/MartinNguyen03/IBM-AI-Pet/main/Video_demo_Athena.mp4)
+[![Watch the video](https://raw.githubusercontent.com/MartinNguyen03/IBM-AI-Pet/main/Thumbnail.jpg)](https://raw.githubusercontent.com/MartinNguyen03/IBM-AI-Pet/main/Video_demo_Athena.mp4)
