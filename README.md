@@ -2,9 +2,15 @@
 This repository is for the 2024 Group Consultancy Project for IBM Innovating AI Robot named Athena.
 
 ## Important files
-/athena/athena.py
+/athena/athena.py To run the code, cd into the athena folder and run the following command in the terminal:
+```
+python3 athena.py
+```
 
-/athena/watson.py
+/athena/watson.py includes the speech-to-text, WatsonX Assistant and text-to-speech code. To run the code, cd into the athena folder and run the following command in the terminal:
+```
+python3 watson.py
+```
 
 These are both python files and are used to run the assistant and the chatbot on the raspberry pi
 
