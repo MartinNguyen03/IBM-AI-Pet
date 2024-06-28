@@ -14,9 +14,7 @@ python3 watson.py
 
 These are both python files and are used to run the assistant and the chatbot on the raspberry pi
 
-To Run the mobile APP:
-
-cd to the mobile app folder and run 
+To Run the mobile APP, cd to the mobile app folder and run: 
 ```
 npm start
 ```
