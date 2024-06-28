@@ -10,7 +10,10 @@ These are both python files and are used to run the assistant and the chatbot on
 
 To Run the mobile APP:
 
-cd to the mobile app folder and run npm start
+cd to the mobile app folder and run 
+```
+npm start
+```
 
 ## Video Demo
 Click on the thumbnail below to watch the video demo:
