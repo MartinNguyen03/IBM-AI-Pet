@@ -1,8 +1,9 @@
 # IBM-AI-Pet
-2024 Group Consultancy Project for IBM innovating AI Robot
+This repository is for the 2024 Group Consultancy Project for IBM Innovating AI Robot named Athena.
 
 ## Important files
 /atena/atena.py
+
 /athena/watson.py
 
 ## Video Demo
